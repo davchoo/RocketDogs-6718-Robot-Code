@@ -5,7 +5,7 @@ Robot code for team 6718 or Rocket Dogs!
 - ```gradlew.bat idea``` Create IDEA project files
 - ```gradlew.bat cleanIdea``` Remove IDEA project files
 - ```gradlew.bat eclipse``` Create Eclipse project files
-- ```gradlew.bat cleanEclipse``` Remove IDEA project files
+- ```gradlew.bat cleanEclipse``` Remove Eclipse project files
 
 ## Deploy Commands
 - ```gradlew.bat deploy``` will build and deploy your code.

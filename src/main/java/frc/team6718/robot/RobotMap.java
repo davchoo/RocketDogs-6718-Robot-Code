@@ -6,8 +6,15 @@ package frc.team6718.robot;
  * Time: 6:56 PM
  */
 public class RobotMap {
-    public static final int driveTrainLeftA = 0;
-    public static final int driveTrainLeftB = 1;
-    public static final int driveTrainRightA = 2;
-    public static final int driveTrainRightB = 3;
+    //Drive Train spark motor controllers (PWM pins)
+    public static final int DRIVE_TRAIN_LEFT_A = 0;
+    public static final int DRIVE_TRAIN_LEFT_B = 1;
+    public static final int DRIVE_TRAIN_RIGHT_A = 2;
+    public static final int DRIVE_TRAIN_RIGHT_B = 3;
+
+    //Drive Train encoders (DIO pins)
+    public static final int DRIVE_TRAIN_ENCODER_LEFT_A = 0;
+    public static final int DRIVE_TRAIN_ENCODER_LEFT_B = 1;
+    public static final int DRIVE_TRAIN_ENCODER_RIGHT_A = 2;
+    public static final int DRIVE_TRAIN_ENCODER_RIGHT_B = 3;
 }

@@ -5,12 +5,12 @@ import frc.team6718.robot.Robot;
 
 public class StopDriveTrainCommand extends Command {
     public StopDriveTrainCommand() {
-        requires(Robot.driveTrainSubsystem);
+        requires(Robot.driveTrain);
     }
 
     @Override
     protected void initialize() {
-        Robot.driveTrainSubsystem.stopAll();
+        Robot.driveTrain.drive.stopMotor();
     }
 
     @Override

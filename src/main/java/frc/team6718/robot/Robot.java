@@ -1,16 +1,20 @@
 package frc.team6718.robot;
 
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import frc.team6718.robot.subsystem.DriveTrainSubsystem;
+import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 
 public class Robot extends TimedRobot {
     public static OI oi;
-    public static DriveTrainSubsystem driveTrainSubsystem;
+    public static DriveTrainSubsystem driveTrain;
+    public static ADXRS450_Gyro gyroscope;
 
     @Override
     public void robotInit() {
-        driveTrainSubsystem = new DriveTrainSubsystem();
+        //TODO figure out when to calibrate gyroscope
+        gyroscope = new ADXRS450_Gyro();
+        driveTrain = new DriveTrainSubsystem();
         oi = new OI();
     }
 

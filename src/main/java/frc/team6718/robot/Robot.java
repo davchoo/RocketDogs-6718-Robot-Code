@@ -2,11 +2,15 @@ package frc.team6718.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import frc.team6718.robot.subsystem.DriveTrainSubsystem;
 
 public class Robot extends TimedRobot {
     public static OI oi;
+    public static DriveTrainSubsystem driveTrainSubsystem;
+
     @Override
     public void robotInit() {
+        driveTrainSubsystem = new DriveTrainSubsystem();
         oi = new OI();
     }
 

@@ -4,16 +4,12 @@ import edu.wpi.first.wpilibj.command.Command;
 import frc.team6718.robot.Robot;
 
 /**
- * Created by davchoo
- * Date: 1/19/2018
- * Time: 9:22 PM
+ * MoveDistanceCommand
+ * Makes the robot move a certain amount of inches at a speed
+ * TODO may overshoot the distance
  */
-//TODO may overshoot the distance
 public class MoveDistanceCommand extends Command{
-    public double distance, speed;
-    private double lastAngle;
-    //TODO calibrate P value
-    private double P = 0.03; //Proportional part of PID
+    private double distance, speed;
 
     public MoveDistanceCommand(double distance, double speed) {
         super("Move Distance");
@@ -26,13 +22,12 @@ public class MoveDistanceCommand extends Command{
     protected void initialize() {
         Robot.driveTrain.leftEncoder.reset();
         Robot.driveTrain.rightEncoder.reset();
-        lastAngle = Robot.gyroscope.getAngle();
+        Robot.driveTrain.setTargetSpeeds(speed, speed);
     }
 
     @Override
-    protected void execute() {
-        double xRot = -(Robot.gyroscope.getAngle() - lastAngle) * P;
-        Robot.driveTrain.drive.arcadeDrive(speed, xRot);
+    protected void end() {
+        Robot.driveTrain.setTargetSpeeds(0, 0);
     }
 
     @Override

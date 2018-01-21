@@ -3,11 +3,6 @@ package frc.team6718.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.team6718.robot.Robot;
 
-/**
- * Created by davchoo
- * Date: 1/19/2018
- * Time: 9:22 PM
- */
 //TODO may overshoot the distance
 public class MoveDistanceCommand extends Command{
     public double distance, speed;

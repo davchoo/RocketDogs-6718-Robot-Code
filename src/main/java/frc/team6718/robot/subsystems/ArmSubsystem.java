@@ -3,24 +3,37 @@ package frc.team6718.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.team6718.math.LawOfCosines;
 import frc.team6718.robot.MB1003UltrasonicSensor;
 import frc.team6718.robot.RobotMap;
 
+import java.util.logging.Logger;
+
+/**
+ * Arm Subsystem
+ * Lower arm is controlled with DART and a talon
+ * Upper arm is controlled using a chain and 2 motors and sparks
+ * A potentiometer is used to measure the angle of the upper arm
+ * A ultrasonic sensor and math is used to measure the angle of the lower arm
+ * Angles are given in degrees and have 0 going up
+ */
 public class ArmSubsystem extends Subsystem {
-    private Spark upperArmA, upperArmB, gripper;
+    private Spark upperArmA, upperArmB;
     private SpeedControllerGroup upperArm;
     private WPI_TalonSRX lowerArm;
 
     //Sensors
     private AnalogPotentiometer upperArmPot;
     private MB1003UltrasonicSensor lowerArmUSensor;
-    private AnalogInput gripperInput;
 
     //PID controllers
     private PIDController upperArmPID, lowerArmPID;
+
+    public static final double LOWER_ARM_LENGTH = 0; //TODO Find arm lengths
+    public static final double UPPER_ARM_LENGTH = 0;
+    public static final double LOWER_ARM_BASE_FRAME = 0;
+
+    private final Logger logger = Logger.getLogger("Arm");
 
     private class LowerArmPIDSource implements PIDSource {
 
@@ -58,7 +71,6 @@ public class ArmSubsystem extends Subsystem {
         }
     }
 
-
     public ArmSubsystem() {
         super("Arm");
         upperArmA = new Spark(RobotMap.ARM_UPPER_MOTOR);
@@ -67,11 +79,8 @@ public class ArmSubsystem extends Subsystem {
 
         lowerArm = new WPI_TalonSRX(RobotMap.ARM_LOWER_MOTOR);
 
-        gripper = new Spark(RobotMap.GRIPPER_MOTOR);
-
         upperArmPot = new AnalogPotentiometer(RobotMap.ARM_UPPER_POT, 135, 35); //TODO find potentiometer range and offset
         lowerArmUSensor = new MB1003UltrasonicSensor(RobotMap.ARM_LOWER_USENSOR);
-        gripperInput = new AnalogInput(RobotMap.GRIPPER_MOTOR_HALL);
 
         //upperArmPID = new PIDController(0, 0, 0, new UpperArmPIDSource(), upperArm);
         //lowerArmPID = new PIDController(0, 0, 0, new LowerArmPIDSource(), lowerArm);
@@ -80,34 +89,17 @@ public class ArmSubsystem extends Subsystem {
         //lowerArmPID.setAbsoluteTolerance(1);
 
         //Set stuff in Shuffleboard
-        upperArm.setName("Upper Arm");
-        upperArm.setSubsystem("Arm");
+        upperArm.setName("Upper Arm", "Arm");
+        lowerArm.setName("Lower Arm", "Arm");
+        upperArmPot.setName("Upper Arm Pot", "Arm");
+        lowerArmUSensor.setName("Lower Arm USensor", "Arm");
+        /*
+        upperArmPID.setName("Upper Arm PID", "Arm");
+        lowerArmPID.setName("Lower arm PID", "Arm");
 
-        lowerArm.setName("Lower Arm");
-        lowerArm.setSubsystem("Arm");
-
-        gripper.setName("Gripper");
-        gripper.setSubsystem("Arm");
-
-        upperArmPot.setName("Upper Arm Pot");
-        upperArmPot.setSubsystem("Arm");
-
-        lowerArmUSensor.setName("Lower Arm USensor");
-        lowerArmUSensor.setSubsystem("Arm");
-
-        gripperInput.setName("Gripper Hall Sensor");
-        gripperInput.setSubsystem("Arm");
-
-        //upperArmPID.setName("Upper Arm PID");
-        //upperArmPID.setSubsystem("Arm");
-
-        //lowerArmPID.setName("Lower arm PID");
-        //lowerArmPID.setSubsystem("Arm");
-
-
-        //LiveWindow.add(upperArmPID);
-        //LiveWindow.add(lowerArmPID);
-
+        LiveWindow.add(upperArmPID);
+        LiveWindow.add(lowerArmPID);
+        */
         disable();
     }
 
@@ -120,42 +112,60 @@ public class ArmSubsystem extends Subsystem {
         return upperArmPot.get();
     }
 
-    private static final double A = 0; //TODO Find lengths of arm
-    private static final double B = 0;
-    private static final double SQUARED_AB = A * A + B * B;
+    private static final double BARM_BDART = 0; //TODO Find lengths of arm
+    private static final double BARM_TDART = 0;
+    private static final double TDART_RODEND = 0;
+    private static final double OFFSET_ANGLE = 0;
     /**
         Law of cosines :O who said people don't need math
-        Let C = Length of dart
-        Let A = Distance between bottom DART joint and bottom arm joint
-        Let B = Distance between bottom arm joint and upper DART joint
-        Let c = Angle from joint to bump sign
-        C^2 = A^2 + B^2 - 2(A)(B)(Cos c)
-        cos^-1((C^2 - A^2 - B^2) / -2(A)(B)) = c
     */
     public double getLowerArmAngle() {
-        double C = lowerArmUSensor.getDistance();
-        return Math.toDegrees(Math.acos((C * C - SQUARED_AB) / (-2 * A * B)));
+        double lengthDart = lowerArmUSensor.getDistance();
+        return LawOfCosines.getAngleA(lengthDart + TDART_RODEND, BARM_BDART, BARM_TDART) + OFFSET_ANGLE;
     }
 
-    //TODO check if angles are inside frame perimeter
     public boolean isInPerimeter() {
-        return true;
+        return isInPerimeter(new double[]{getLowerArmAngle(), getUpperArmAngle()});
     }
 
     public boolean isInPerimeter(double[] angles) {
+        return Math.sin(Math.toDegrees(angles[0])) * LOWER_ARM_LENGTH + Math.sin(Math.toDegrees(angles[1])) * UPPER_ARM_LENGTH - LOWER_ARM_BASE_FRAME < 16;
+    }
+
+    public boolean setLowerArmAngle(double angle) {
+        if (!isInPerimeter(new double[]{angle, getUpperArmTarget()})) {
+            logger.severe("Lower arm tried to go outside frame perimeter");
+            logger.severe(angle + " " + getUpperArmTarget());
+            return false;
+        }
+        lowerArmPID.setSetpoint(angle);
         return true;
     }
 
-    public void setLowerArmAngle(double angle) {
-        lowerArmPID.setSetpoint(angle);
-    }
-
-    public void setUpperArmAngle(double angle) {
+    public boolean setUpperArmAngle(double angle) {
+        if (!isInPerimeter(new double[]{getLowerArmTarget(), angle})) {
+            logger.severe("Upper arm arm tried to go outside frame perimeter");
+            logger.severe(getLowerArmTarget() + " " + angle);
+            return false;
+        }
         upperArmPID.setSetpoint(angle);
+        return true;
     }
 
-    public boolean onTarget() {
-        return lowerArmPID.onTarget() && upperArmPID.onTarget();
+    public boolean isLowerArmOnTarget() {
+        return lowerArmPID.onTarget();
+    }
+
+    public boolean isUpperArmOnTarget() {
+        return upperArmPID.onTarget();
+    }
+
+    public double getLowerArmTarget() {
+        return lowerArmPID.getSetpoint();
+    }
+
+    public double getUpperArmTarget() {
+        return upperArmPID.getSetpoint();
     }
 
     public void disable() {
@@ -166,24 +176,5 @@ public class ArmSubsystem extends Subsystem {
     public void enable() {
         lowerArmPID.enable();
         upperArmPID.enable();
-    }
-
-    public void closeGripper() {
-        gripper.set(0);
-    }
-
-    public void openGripper() {
-        gripper.set(0.5); //TODO figure out how fast the gripper needs to open and to keep it open
-    }
-
-    public void set(double lower, double upper, double grip) {
-        upperArm.set(upper);
-        lowerArm.set(lower);
-        gripper.set(grip);
-    }
-
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder);
     }
 }

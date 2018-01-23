@@ -1,23 +1,22 @@
 package frc.team6718.robot.commands;
 
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.TimedCommand;
 import frc.team6718.robot.Robot;
 
 //TODO determine how to keep the gripper open
 public class OpenGripperCommand extends TimedCommand {
     public OpenGripperCommand() {
-        super("Open Gripper Command", 5); //TODO determine time the gripper takes to open
-        requires(Robot.arm);
+        super("Open Gripper", 5); //TODO determine time the gripper takes to open
+        requires(Robot.gripper);
     }
 
     @Override
     protected void initialize() {
-        Robot.arm.openGripper();
+        Robot.gripper.set(1);
     }
 
     @Override
     protected void end() {
-
+        Robot.gripper.set(0);
     }
 }

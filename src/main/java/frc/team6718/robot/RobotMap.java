@@ -29,7 +29,4 @@ public class RobotMap {
 
     //Gripper motor (PWM pins)
     public static final int GRIPPER_MOTOR = 6;
-
-    //Gripper motor hall sensor (AIO pins)
-    public static final int GRIPPER_MOTOR_HALL  = 2;
 }

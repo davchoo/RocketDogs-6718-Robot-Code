@@ -6,12 +6,15 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.team6718.robot.commands.OIDriverCommand;
 import frc.team6718.robot.subsystems.ArmSubsystem;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
+import frc.team6718.robot.subsystems.GripperSubsystem;
 import frc.team6718.robot.subsystems.GyroScopeSubsystem;
 
 public class Robot extends TimedRobot {
     public static OI oi;
+
     public static DriveTrainSubsystem driveTrain;
     public static ArmSubsystem arm;
+    public static GripperSubsystem gripper;
     public static GyroScopeSubsystem gyroscope;
 
     private Command autonomousCommand;
@@ -21,6 +24,7 @@ public class Robot extends TimedRobot {
         gyroscope = new GyroScopeSubsystem();
         driveTrain = new DriveTrainSubsystem();
         arm = new ArmSubsystem();
+        gripper = new GripperSubsystem();
         oi = new OI();
     }
 

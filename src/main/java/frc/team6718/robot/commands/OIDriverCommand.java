@@ -9,6 +9,7 @@ public class OIDriverCommand extends Command {
         super("OI Driver Command");
         requires(Robot.driveTrain);
         requires(Robot.arm);
+        requires(Robot.gripper);
     }
 
     @Override
@@ -16,7 +17,6 @@ public class OIDriverCommand extends Command {
         double speed = Robot.oi.joystick.getY();
         double xRot = Robot.oi.joystick.getX();
         Robot.driveTrain.drive.arcadeDrive(speed, xRot);
-        Robot.arm.set(Robot.oi.joystick2.getX(), Robot.oi.joystick2.getY(), Robot.oi.joystick2.getTwist());
     }
 
     @Override

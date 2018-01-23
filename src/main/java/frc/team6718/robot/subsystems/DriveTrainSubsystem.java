@@ -119,7 +119,11 @@ public class DriveTrainSubsystem extends Subsystem {
      * @param angle the angle delta in degrees
      */
     public void rotateTargetHeading(double angle) {
-        rotation.setSetpoint(rotation.getSetpoint() + angle);
+        double newRotation = (rotation.getSetpoint() + angle) % 360d;
+        if (newRotation < 0) {
+            newRotation += 360;
+        }
+        rotation.setSetpoint(newRotation);
     }
 
     /**

@@ -50,9 +50,9 @@ public class GyroScopeSubsystem extends Subsystem {
      * @return a heading in degrees
      */
     public double getHeading() {
-        double heading = gyroscope.getAngle() % 360;
+        double heading = gyroscope.getAngle() % 360d;
         if (heading < 0) {
-            heading = 360 + heading;
+            heading += 360;
         }
         return heading;
     }

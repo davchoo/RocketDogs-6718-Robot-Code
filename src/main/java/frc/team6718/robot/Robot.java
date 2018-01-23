@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void disabledInit() {
-        driveTrain.drive.stopMotor();
+        driveTrain.disable();
     }
 
     @Override

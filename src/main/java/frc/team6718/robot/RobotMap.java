@@ -14,13 +14,14 @@ public class RobotMap {
     public static final int DRIVE_TRAIN_ENCODER_RIGHT_A = 2;
     public static final int DRIVE_TRAIN_ENCODER_RIGHT_B = 3;
 
-    //Arm potentiometers (AIO pins)
-    public static final int ARM_POT_JOINT_1 = 0;
-    public static final int ARM_POT_JOINT_2 = 1;
+    //Upper Arm potentiometers (AIO pins)
+    public static final int ARM_UPPER_POT = 0;
 
-    //Arm motor (PWM pins)
-    public static final int ARM_MOTOR_JOINT_1 = 4;
-    public static final int ARM_MOTOR_JOINT_2 = 5;
+    //Upper Arm motor (PWM pins)
+    public static final int ARM_UPPER_MOTOR = 4;
+
+    //Lower Arm motor (Talon device ID)
+    public static final int ARM_LOWER_MOTOR = 0;
 
     //Gripper motor (PWM pins)
     public static final int GRIPPER_MOTOR = 7;

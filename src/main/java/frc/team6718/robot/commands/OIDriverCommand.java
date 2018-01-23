@@ -5,12 +5,12 @@ import frc.team6718.robot.Robot;
 
 public class OIDriverCommand extends Command {
     public OIDriverCommand() {
-        super("OI Driver Command");
+        super("OI Driver");
         requires(Robot.driveTrain);
     }
 
     @Override
-    protected void execute() {
+    protected void execute() { //TODO joystick speed and xRotation might be too slow
         double speed = Robot.oi.joystick.getY();
         double xRot = Robot.oi.joystick.getX();
         Robot.driveTrain.setTargetSpeeds(speed, speed);

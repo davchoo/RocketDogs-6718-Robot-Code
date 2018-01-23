@@ -33,6 +33,7 @@ public class GyroScopeSubsystem extends Subsystem {
     private ADXRS450_Gyro gyroscope;
 
     public GyroScopeSubsystem() {
+        super("Gyroscope");
         gyroscope = new ADXRS450_Gyro();
     }
 

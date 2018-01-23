@@ -19,7 +19,7 @@ public class DriveTrainSubsystem extends Subsystem {
     public static final double MAX_SPEED = 0; //TODO find max speed
     public static final double MAX_ACCEL = 0; //TODO find max acceleration
     public static final double MAX_JERK = 0; //TODO find max jerk
-    public static final double TRACK_WIDTH = 0; //TODO find track width
+    public static final double TRACK_WIDTH = 23;
 
     private Spark leftA, leftB;
     private Spark rightA, rightB;

@@ -16,8 +16,8 @@ public class TurnCommand extends Command {
      */
     public TurnCommand(double heading) {
         super("Turn");
-        this.heading = heading;
         requires(Robot.driveTrain);
+        this.heading = heading;
     }
 
     @Override

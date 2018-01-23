@@ -9,36 +9,35 @@ import frc.team6718.robot.Robot;
  * TODO may overshoot the distance
  */
 public class MoveDistanceCommand extends Command{
-    private double distance, speed;
+    private double distance;
 
     /**
      * Move the robot forward
      * @param distance in inches
-     * @param speed in inches/second
      */
-    public MoveDistanceCommand(double distance, double speed) {
+    public MoveDistanceCommand(double distance) {
         super("Move Distance");
         requires(Robot.driveTrain);
         this.distance = distance;
-        this.speed = speed;
     }
 
     @Override
     protected void initialize() {
+        Robot.driveTrain.enable();
         Robot.driveTrain.leftEncoder.reset();
         Robot.driveTrain.rightEncoder.reset();
-        Robot.driveTrain.setTargetSpeeds(speed, speed);
+        Robot.driveTrain.setTargetDistance(distance);
     }
 
     @Override
     protected void end() {
         Robot.driveTrain.setTargetSpeeds(0, 0);
+        Robot.driveTrain.disable();
     }
 
     @Override
     protected boolean isFinished() {
-        double avg = (Robot.driveTrain.leftEncoder.getDistance() + Robot.driveTrain.rightEncoder.getDistance()) / 2d;
-        return avg >= distance;
+        return Robot.driveTrain.isDistanceOnTarget();
     }
 
 

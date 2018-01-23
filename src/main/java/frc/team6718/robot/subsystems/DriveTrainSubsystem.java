@@ -5,9 +5,8 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.team6718.robot.Robot;
 import frc.team6718.robot.RobotMap;
 import frc.team6718.robot.commands.StopMovingCommand;
-import frc.team6718.robot.pid.CombinedPIDOutput;
+import frc.team6718.robot.pid.AvgDistancePIDSource;
 import frc.team6718.robot.pid.NullPIDOutput;
-import frc.team6718.robot.pid.WrappedPIDSource;
 
 /**
  * Drive Train Subsystem
@@ -18,8 +17,9 @@ public class DriveTrainSubsystem extends Subsystem {
     private Spark leftA, leftB;
     private Spark rightA, rightB;
     private SpeedControllerGroup leftMotorGroup, rightMotorGroup;
-    private PIDController left, right, rotation;
-    public static final double maxSpeed = 0; //TODO find max speed
+    private PIDController left, right, rotation, distance;
+    private AvgDistancePIDSource avgDistanceSource;
+    public static final double MAX_SPEED = 0; //TODO find max speed
 
     //Units are inches and inches/second
     public Encoder leftEncoder, rightEncoder;
@@ -47,16 +47,19 @@ public class DriveTrainSubsystem extends Subsystem {
         leftEncoder.setPIDSourceType(PIDSourceType.kRate);
         rightEncoder.setPIDSourceType(PIDSourceType.kRate);
 
+        avgDistanceSource = new AvgDistancePIDSource(leftEncoder, rightEncoder);
+
         //TODO calibrate PID
-        rotation = new PIDController(0, 0, 0, 0, new WrappedPIDSource(Robot.gyroscope, 360), new NullPIDOutput());
-        left = new PIDController(0, 0, 0, 0, leftEncoder, new CombinedPIDOutput(rotation, leftMotorGroup, false));
-        right = new PIDController(0, 0, 0, 0, rightEncoder, new CombinedPIDOutput(rotation, rightMotorGroup, true));
+        left = new PIDController(0, 0, 0, 0, leftEncoder, new NullPIDOutput());
+        right = new PIDController(0, 0, 0, 0, rightEncoder, new NullPIDOutput());
+        rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope, new NullPIDOutput());
+        distance = new PIDController(0, 0, 0, 0, avgDistanceSource, new NullPIDOutput());
 
         rotation.setInputRange(0, 360);
-        left.setInputRange(-maxSpeed, maxSpeed);
-        right.setInputRange(-maxSpeed, maxSpeed);
+        distance.setOutputRange(-MAX_SPEED, MAX_SPEED);
 
         rotation.setAbsoluteTolerance(1);
+        distance.setAbsoluteTolerance(1);
 
         left.setContinuous();
         right.setContinuous();
@@ -66,6 +69,7 @@ public class DriveTrainSubsystem extends Subsystem {
         left.disable();
         right.disable();
         rotation.disable();
+        distance.disable();
     }
 
     /**
@@ -75,12 +79,19 @@ public class DriveTrainSubsystem extends Subsystem {
      * @param rightSpeed The target speed for the two right motors (in/s)
      */
     public void setTargetSpeeds(double leftSpeed, double rightSpeed) {
+        distance.disable();
         left.setSetpoint(leftSpeed);
         right.setSetpoint(rightSpeed);
     }
 
     public void setTargetHeading(double angle) {
         rotation.setSetpoint(angle);
+    }
+
+    public void setTargetDistance(double d) {
+        avgDistanceSource.zero();
+        distance.enable();
+        distance.setSetpoint(d);
     }
 
     public void rotateTargetHeading(double angle) {
@@ -91,16 +102,40 @@ public class DriveTrainSubsystem extends Subsystem {
         return rotation.onTarget();
     }
 
+    public boolean isDistanceOnTarget() {
+        return distance.onTarget();
+    }
+
     public void enable() {
         left.enable();
         right.enable();
         rotation.enable();
+        distance.disable(); //Distance shouldn't be controlling at start
     }
 
     public void disable() {
         left.disable();
         right.disable();
         rotation.disable();
+        distance.disable();
+    }
+
+    @Override
+    public void periodic() {
+        if (distance.isEnabled()) {
+            double speed = distance.get();
+            left.setSetpoint(speed);
+            right.setSetpoint(speed);
+        }
+        double rotationPID = rotation.get();
+        double leftPID = left.get() - rotationPID;
+        double rightPID = right.get() + rotationPID;
+        double max = Math.max(Math.max(Math.abs(leftPID), Math.abs(rightPID)), 1);
+        //Normalize values to be in the range -1 to 1
+        leftPID /= max;
+        rightPID /= max;
+        leftMotorGroup.pidWrite(leftPID);
+        rightMotorGroup.pidWrite(rightPID);
     }
 
     @Override

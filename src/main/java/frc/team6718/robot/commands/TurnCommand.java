@@ -22,7 +22,13 @@ public class TurnCommand extends Command {
 
     @Override
     protected void initialize() {
+        Robot.driveTrain.enable();
         Robot.driveTrain.setTargetHeading(heading);
+    }
+
+    @Override
+    protected void end() {
+        Robot.driveTrain.disable();
     }
 
     @Override

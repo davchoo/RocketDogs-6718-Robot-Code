@@ -3,24 +3,11 @@ plugins {
     id "eclipse"
     id "idea"
     id "jaci.openrio.gradle.GradleRIO" version "2018.01.22"
+    id "application"
 }
 
-def TEAM = 6718
-def ROBOT_CLASS = "frc.team6718.robot.Robot"
-
-// Define my targets (RoboRIO) and artifacts (deployable files)
-// This is added by GradleRIO's backing project EmbeddedTools.
-deploy {
-    targets {
-        target("roborio", jaci.openrio.gradle.frc.RoboRIO) {
-            team = TEAM
-        }
-    }
-    artifacts {
-        artifact('frcJava', jaci.openrio.gradle.frc.FRCJavaArtifact) {
-            targets << "roborio"
-        }
-    }
+repositories {
+    mavenCentral()
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), CTRE Toolsuite (Talon SRX)
@@ -30,6 +17,7 @@ dependencies {
     compile ctre()
     compile navx()
     compile openrio.powerup.matchData()
+    compile pathfinder()
 }
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')
@@ -37,7 +25,17 @@ dependencies {
 // knows where to look for our Robot Class.
 jar {
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    manifest jaci.openrio.gradle.GradleRIOPlugin.javaManifest(ROBOT_CLASS)
+    manifest {
+        attributes('Main-Class': 'frc.team6718.Test')
+    }
+    destinationDir = file("$rootDir/visualization")
+}
+
+run {
+    mainClassName ='frc.team6718.Test'
+    applicationDefaultJvmArgs = ["-Djava.path.library=$rootDir/visualization/"]
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir = file("$rootDir/visualization")
 }
 
 task wrapper(type: Wrapper) {

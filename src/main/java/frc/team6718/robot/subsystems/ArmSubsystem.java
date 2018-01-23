@@ -90,11 +90,11 @@ public class ArmSubsystem extends Subsystem {
         Let B = Distance between bottom arm joint and upper DART joint
         Let c = Angle from joint to bump sign
         C^2 = A^2 + B^2 - 2(A)(B)(Cos c)
-        cos^-1((C^2 - A^2 - B^2) / 2(A)(B)) = c
+        cos^-1((C^2 - A^2 - B^2) / -2(A)(B)) = c
     */
     public double getLowerArmAngle() {
         double C = lowerArmUSensor.getDistance();
-        return Math.toDegrees(Math.acos((C * C - SQUARED_AB) / (2 * A * B)));
+        return Math.toDegrees(Math.acos((C * C - SQUARED_AB) / (-2 * A * B)));
     }
 
     //TODO check if angles are inside frame perimeter

@@ -1,9 +1,9 @@
 package frc.team6718.vector;
 
 public class Vector3 implements Vector<Vector3> {
-    public float x, y, z;
+    public double x, y, z;
 
-    public Vector3(float x, float y, float z) {
+    public Vector3(double x, double y, double z) {
         set(x, y, z);
     }
 
@@ -15,7 +15,7 @@ public class Vector3 implements Vector<Vector3> {
         return this;
     }
 
-    public Vector3 set(float x, float y, float z) {
+    public Vector3 set(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -23,18 +23,18 @@ public class Vector3 implements Vector<Vector3> {
     }
 
     @Override
-    public float magnitude() {
-        return (float) Math.sqrt(x * x + y * y + z * z);
+    public double magnitude() {
+        return Math.sqrt(x * x + y * y + z * z);
     }
 
     @Override
-    public float magnitude2() {
+    public double magnitude2() {
         return x * x + y * y + z * z;
     }
 
     @Override
     public Vector3 normalize() {
-        float length = magnitude();
+        double length = magnitude();
         x /= length;
         y /= length;
         z /= length;
@@ -49,7 +49,7 @@ public class Vector3 implements Vector<Vector3> {
         return this;
     }
 
-    public Vector3 add(float x, float y, float z) {
+    public Vector3 add(double x, double y, double z) {
         this.x += x;
         this.y += y;
         this.z += z;
@@ -64,7 +64,7 @@ public class Vector3 implements Vector<Vector3> {
         return this;
     }
 
-    public Vector3 sub(float x, float y, float z) {
+    public Vector3 sub(double x, double y, double z) {
         this.x -= x;
         this.y -= y;
         this.z -= z;
@@ -72,7 +72,7 @@ public class Vector3 implements Vector<Vector3> {
     }
 
     @Override
-    public Vector3 mul(float v) {
+    public Vector3 mul(double v) {
         x *= v;
         y *= v;
         z *= v;
@@ -87,7 +87,7 @@ public class Vector3 implements Vector<Vector3> {
         return this;
     }
 
-    public Vector3 mul(float x, float y, float z) {
+    public Vector3 mul(double x, double y, double z) {
         this.x *= x;
         this.y *= y;
         this.z *= z;

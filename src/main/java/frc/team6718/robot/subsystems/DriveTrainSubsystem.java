@@ -1,14 +1,16 @@
 package frc.team6718.robot.subsystems;
 
-import edu.wpi.first.wpilibj.*;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.team6718.robot.Robot;
 import frc.team6718.robot.RobotMap;
 import frc.team6718.robot.commands.StopMovingCommand;
-import frc.team6718.robot.pid.AvgDistancePIDSource;
-import frc.team6718.robot.pid.EncoderDispPIDSource;
 import frc.team6718.robot.pid.NullPIDOutput;
-import frc.team6718.robot.pid.PIDControllerPIDOutput;
 import jaci.pathfinder.Trajectory;
 
 /**
@@ -21,78 +23,92 @@ public class DriveTrainSubsystem extends Subsystem {
     public static final double MAX_ACCEL = 10; //TODO find max acceleration
     public static final double MAX_JERK = 2; //TODO find max jerk
     public static final double TRACK_WIDTH = 23;
+    public static final double MAX_TOLERANCE = 0.5; //0.5 degrees or 0.5 sensor units(rounds to 1)
 
-    private Spark leftA, leftB;
-    private Spark rightA, rightB;
-    private SpeedControllerGroup leftMotorGroup, rightMotorGroup;
-    private PIDController left, right, rotation, leftDistance, rightDistance;
-    private AvgDistancePIDSource avgDistanceSource;
-    //Units are inches and inches/second
-    public Encoder leftEncoder, rightEncoder;
+    //A of each side is master
+    private TalonSRX leftA, leftB;
+    private TalonSRX rightA, rightB;
+    private PIDController rotation;
+    //Units 1 = 1/4096 of a rotation
+
+    private boolean disabled = false;
 
     //TODO check if this many PIDControllers is slowing down the RoboRIO
     public DriveTrainSubsystem() {
         super("Drive Train");
 
-        leftA = new Spark(RobotMap.DRIVE_TRAIN_LEFT_A);
-        leftB = new Spark(RobotMap.DRIVE_TRAIN_LEFT_B);
+        leftA = new TalonSRX(RobotMap.DRIVE_TRAIN_LEFT_A);
+        leftB = new TalonSRX(RobotMap.DRIVE_TRAIN_LEFT_B);
 
-        rightA = new Spark(RobotMap.DRIVE_TRAIN_RIGHT_A);
-        rightB = new Spark(RobotMap.DRIVE_TRAIN_RIGHT_B);
+        rightA = new TalonSRX(RobotMap.DRIVE_TRAIN_RIGHT_A);
+        rightB = new TalonSRX(RobotMap.DRIVE_TRAIN_RIGHT_B);
 
-        leftMotorGroup = new SpeedControllerGroup(leftA, leftB);
-        rightMotorGroup = new SpeedControllerGroup(rightA, rightB);
+        //TODO determine if we want to continue moving after stopping the motors
+        leftA.setNeutralMode(NeutralMode.Brake);
+        leftB.setNeutralMode(NeutralMode.Brake);
 
-        //TODO check if one of the encoders need to be reversed
-        leftEncoder = new Encoder(RobotMap.DRIVE_TRAIN_ENCODER_LEFT_A,RobotMap.DRIVE_TRAIN_ENCODER_LEFT_B, false);
-        rightEncoder = new Encoder(RobotMap.DRIVE_TRAIN_ENCODER_RIGHT_A, RobotMap.DRIVE_TRAIN_ENCODER_RIGHT_B, false);
+        rightA.setNeutralMode(NeutralMode.Brake);
+        rightB.setNeutralMode(NeutralMode.Brake);
 
-        //We have 6in diameter wheels
-        leftEncoder.setDistancePerPulse(Math.PI * 6d / 1024d);
-        rightEncoder.setDistancePerPulse(Math.PI * 6d / 1024d);
+        leftB.follow(leftA);
+        rightB.follow(rightA);
 
-        leftEncoder.setPIDSourceType(PIDSourceType.kRate);
-        rightEncoder.setPIDSourceType(PIDSourceType.kRate);
-
-        avgDistanceSource = new AvgDistancePIDSource(leftEncoder, rightEncoder);
-
+        leftA.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+        rightA.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+        //TODO check if we need to reverse the encoders
+        /*
+        leftA.setSensorPhase(false);
+        rightA.setSensorPhase(false);
+        */
         //TODO calibrate PID
-        left = new PIDController(0, 0, 0, 0, leftEncoder, new NullPIDOutput());
-        right = new PIDController(0, 0, 0, 0, rightEncoder, new NullPIDOutput());
-        rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope.getPIDSource(), new NullPIDOutput());
-        leftDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(leftEncoder), new PIDControllerPIDOutput(left));
-        rightDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(rightEncoder), new PIDControllerPIDOutput(right));
+        //Velocity
+        leftA.selectProfileSlot(0,0);
+        leftA.config_kP(0, 0,0);
+        leftA.config_kI(0, 0,0);
+        leftA.config_kD(0, 0,0);
+        leftA.config_kF(0, 0,0);
 
+        rightA.selectProfileSlot(0,0);
+        rightA.config_kP(0, 0,0);
+        rightA.config_kI(0, 0,0);
+        rightA.config_kD(0, 0,0);
+        rightA.config_kF(0, 0,0);
+        //TODO find out if the slotIdx is the profile slot
+        //Distance (Motion Magic)
+        leftA.selectProfileSlot(1,0);
+        leftA.config_kP(1, 0,0);
+        leftA.config_kI(1, 0,0);
+        leftA.config_kD(1, 0,0);
+        leftA.config_kF(1, 0,0);
+
+        rightA.selectProfileSlot(1,0);
+        rightA.config_kP(1, 0,0);
+        rightA.config_kI(1, 0,0);
+        rightA.config_kD(1, 0,0);
+        rightA.config_kF(1, 0,0);
+        //TODO set velocity and accel for motion magic
+        rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope.getPIDSource(), new NullPIDOutput(), 0.02);
         rotation.setInputRange(0, 360);
-        leftDistance.setOutputRange(-MAX_SPEED, MAX_SPEED);
-        rightDistance.setOutputRange(-MAX_SPEED, MAX_SPEED);
 
-        rotation.setAbsoluteTolerance(1);
-        leftDistance.setAbsoluteTolerance(1);
-        rightDistance.setAbsoluteTolerance(1);
+        rotation.setAbsoluteTolerance(MAX_TOLERANCE);
 
-        left.setContinuous();
-        right.setContinuous();
         rotation.setContinuous();
 
         //Start disabled for safety
-        left.disable();
-        right.disable();
-        rotation.disable();
-        leftDistance.disable();
-        rightDistance.disable();
+        disable();
     }
 
     /**
      * Sets the target speeds of both motors
      * Equivalent to tankDrive
-     * @param leftSpeed The target speed for the two left motors (in/s)
-     * @param rightSpeed The target speed for the two right motors (in/s)
+     * @param leftSpeed The target speed for the two left motors (sensor units/s)
+     * @param rightSpeed The target speed for the two right motors (sensor units/s)
      */
     public void setTargetSpeeds(double leftSpeed, double rightSpeed) {
-        disableDistanceControl();
-        left.setSetpoint(leftSpeed);
-        right.setSetpoint(rightSpeed);
+        leftA.selectProfileSlot(0, 0);
+        rightA.selectProfileSlot(0, 0);
+        leftA.set(ControlMode.Velocity, leftSpeed);
+        rightA.set(ControlMode.Velocity, rightSpeed);
     }
 
     /**
@@ -105,13 +121,13 @@ public class DriveTrainSubsystem extends Subsystem {
 
     /**
      * Drive the robot forward
-     * @param d The amount of inches
+     * @param d The amount of sensor units
      */
     public void setTargetDistance(double d) {
-        avgDistanceSource.zero();
-        enableDistanceControl();
-        leftDistance.setSetpoint(d);
-        rightDistance.setSetpoint(d);
+        leftA.selectProfileSlot(1, 0);
+        rightA.selectProfileSlot(1, 0);
+        leftA.set(ControlMode.MotionMagic, d);
+        rightA.set(ControlMode.MotionMagic, d);
     }
 
     /**
@@ -139,68 +155,44 @@ public class DriveTrainSubsystem extends Subsystem {
      * @return if both left and right distance PIDControllers are in tolerances
      */
     public boolean isDistanceOnTarget() {
-        return leftDistance.onTarget() && rightDistance.onTarget();
-    }
-
-    /**
-     * Get the average distance travel between both sides
-     * @return
-     */
-    public double getDistanceCovered() {
-        return avgDistanceSource.pidGet();
+        return leftA.getClosedLoopError(0) < MAX_TOLERANCE && rightA.getClosedLoopError(0) < MAX_TOLERANCE;
     }
 
     /**
      * Reset both encoders to 0
      */
     public void resetDistance() {
-        avgDistanceSource.zero();
+        leftA.setSelectedSensorPosition(0, 0, 0);
+        rightA.setSelectedSensorPosition(0, 0, 0);
     }
 
     /**
-     * Enable the left and right velocity PIDs and heading PID.
-     * Also disables left and right distance PIDs
+     * Enables the heading PID.
      */
     public void enable() {
-        left.enable();
-        right.enable();
+        disabled = false;
         rotation.enable();
-        disableDistanceControl();
     }
 
     /**
-     * Disable all PID controllers and reset the setpoints to 0
+     * Disable all motor controllers and rotation pid
      */
     public void disable() {
-        left.setSetpoint(0);
-        right.setSetpoint(0);
-        left.reset();
-        right.reset();
+        disabled = true;
+        leftA.selectProfileSlot(0, 0);
+        rightA.selectProfileSlot(0, 0);
+        leftA.set(ControlMode.Disabled, 0);
+        rightA.set(ControlMode.Disabled, 0);
         rotation.disable();
-        disableDistanceControl();
-    }
-
-    /**
-     * Enable the left and right distance PID controllers
-     */
-    public void enableDistanceControl() {
-        leftDistance.enable();
-        rightDistance.enable();
-    }
-
-    /**
-     * Disable the left and right distance PID controllers
-     */
-    public void disableDistanceControl() {
-        leftDistance.setSetpoint(0);
-        rightDistance.setSetpoint(0);
-        resetDistance();
-        leftDistance.reset();
-        rightDistance.reset();
     }
 
     @Override
     public void periodic() {
+        if (disabled) {
+            return;
+        }
+        //TODO figure out how to integrate gyroscope into drive train
+        /*
         double rotationPID = rotation.get();
         double leftPID = left.get() - rotationPID;
         double rightPID = right.get() + rotationPID;
@@ -209,7 +201,7 @@ public class DriveTrainSubsystem extends Subsystem {
         leftPID /= max;
         rightPID /= max;
         leftMotorGroup.pidWrite(leftPID);
-        rightMotorGroup.pidWrite(rightPID);
+        rightMotorGroup.pidWrite(rightPID);*/
     }
 
     @Override
@@ -223,5 +215,23 @@ public class DriveTrainSubsystem extends Subsystem {
      */
     public Trajectory.Config getConfig() {
         return new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, TimedRobot.DEFAULT_PERIOD, MAX_SPEED, MAX_ACCEL, MAX_JERK);
+    }
+
+    /**
+     * Converts sensor units to inches
+     * @param units Sensor units
+     * @return distance in inches
+     */
+    public double convertUnitsToDistance(double units) {
+        return units / 4096d * 6d * Math.PI;
+    }
+
+    /**
+     * Converts inches to sensor units
+     * @param distance in inches
+     * @return sensor units
+     */
+    public double convertDistanceToUnits(double distance) {
+        return distance / 6d / Math.PI * 4096d;
     }
 }

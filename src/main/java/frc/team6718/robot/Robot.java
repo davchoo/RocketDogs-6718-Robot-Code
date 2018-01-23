@@ -5,13 +5,11 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.team6718.robot.commands.OIDriverCommand;
 import frc.team6718.robot.commands.auto.LLAutoCommandGroup;
-import frc.team6718.robot.commands.auto.LRAutoCommandGroup;
-import frc.team6718.robot.commands.auto.RLAutoCommandGroup;
 import frc.team6718.robot.commands.auto.RRAutoCommandGroup;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 import frc.team6718.robot.subsystems.GyroScopeSubsystem;
+
 import static openrio.powerup.MatchData.*;
-import openrio.powerup.MatchData;
 
 
 public class Robot extends TimedRobot {
@@ -50,7 +48,6 @@ public class Robot extends TimedRobot {
             switchFar = getOwnedSide(GameFeature.SWITCH_FAR);
         }else{
             if (switchNear == OwnedSide.LEFT) {
-                if ()
                 autonomousCommand = new LLAutoCommandGroup();
             }else if(switchNear == OwnedSide.RIGHT){
                 autonomousCommand = new RRAutoCommandGroup();

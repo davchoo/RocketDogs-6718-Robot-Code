@@ -66,13 +66,13 @@ public class DriveTrainSubsystem extends Subsystem {
         leftA.config_kP(0, 0,0);
         leftA.config_kI(0, 0,0);
         leftA.config_kD(0, 0,0);
-        leftA.config_kF(0, 0,0);
+        leftA.config_kF(0, 1d / convertI2U(MAX_SPEED),0);
 
         rightA.selectProfileSlot(0,0);
         rightA.config_kP(0, 0,0);
         rightA.config_kI(0, 0,0);
         rightA.config_kD(0, 0,0);
-        rightA.config_kF(0, 0,0);
+        rightA.config_kF(0, 1d / convertI2U(MAX_SPEED),0);
         //TODO find out if the slotIdx is the profile slot
         //Distance (Motion Magic)
         leftA.selectProfileSlot(1,0);
@@ -80,13 +80,17 @@ public class DriveTrainSubsystem extends Subsystem {
         leftA.config_kI(1, 0,0);
         leftA.config_kD(1, 0,0);
         leftA.config_kF(1, 0,0);
+        leftA.configMotionCruiseVelocity(convertI2U(MAX_SPEED * 0.1), 0);
+        leftA.configMotionAcceleration(convertI2U(MAX_ACCEL * 0.1), 0);
 
         rightA.selectProfileSlot(1,0);
         rightA.config_kP(1, 0,0);
         rightA.config_kI(1, 0,0);
         rightA.config_kD(1, 0,0);
         rightA.config_kF(1, 0,0);
-        //TODO set velocity and accel for motion magic
+        rightA.configMotionCruiseVelocity(convertI2U(MAX_SPEED * 0.1), 0);
+        rightA.configMotionAcceleration(convertI2U(MAX_ACCEL * 0.1), 0);
+
         rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope.getPIDSource(), new NullPIDOutput(), 0.02);
         rotation.setInputRange(0, 360);
 
@@ -222,7 +226,7 @@ public class DriveTrainSubsystem extends Subsystem {
      * @param units Sensor units
      * @return distance in inches
      */
-    public double convertUnitsToDistance(double units) {
+    public double convertU2I(double units) {
         return units / 4096d * 6d * Math.PI;
     }
 
@@ -231,7 +235,7 @@ public class DriveTrainSubsystem extends Subsystem {
      * @param distance in inches
      * @return sensor units
      */
-    public double convertDistanceToUnits(double distance) {
-        return distance / 6d / Math.PI * 4096d;
+    public int convertI2U(double distance) {
+        return (int) (distance / 6d / Math.PI * 4096d);
     }
 }

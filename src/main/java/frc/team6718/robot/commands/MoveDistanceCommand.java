@@ -11,6 +11,11 @@ import frc.team6718.robot.Robot;
 public class MoveDistanceCommand extends Command{
     private double distance, speed;
 
+    /**
+     * Move the robot forward
+     * @param distance in inches
+     * @param speed in inches/second
+     */
     public MoveDistanceCommand(double distance, double speed) {
         super("Move Distance");
         requires(Robot.driveTrain);

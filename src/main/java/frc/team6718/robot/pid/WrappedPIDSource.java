@@ -7,16 +7,13 @@ import edu.wpi.first.wpilibj.PIDSourceType;
  * MappedPIDSource
  * Maps the input range of a pid source to an output range
  */
-public class MappedPIDSource implements PIDSource {
+public class WrappedPIDSource implements PIDSource {
     private PIDSource source;
-    private double inputMin, inputRange, outputMin, outputRange;
+    private double max;
 
-    public MappedPIDSource(PIDSource source, double inputMin, double inputMax, double outputMin, double outputMax) {
+    public WrappedPIDSource(PIDSource source, double max) {
         this.source = source;
-        this.inputMin = inputMin;
-        this.inputRange = inputMax - inputMin;
-        this.outputMin = outputMin;
-        this.outputRange = outputMax - outputMin;
+        this.max = max;
     }
 
     @Override
@@ -31,7 +28,6 @@ public class MappedPIDSource implements PIDSource {
 
     @Override
     public double pidGet() {
-        double normalized = (source.pidGet() - inputMin) / inputRange % 1d;
-        return normalized * outputRange + outputMin;
+        return source.pidGet() % max;
     }
 }

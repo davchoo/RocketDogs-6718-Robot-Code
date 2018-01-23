@@ -9,7 +9,7 @@ import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 public class Robot extends TimedRobot {
     public static OI oi;
     public static DriveTrainSubsystem driveTrain;
-    public static ADXRS450_Gyro gyroscope;
+    public static ADXRS450_Gyro gyroscope; //0 is what ever direction the robot starts in
 
     @Override
     public void robotInit() {

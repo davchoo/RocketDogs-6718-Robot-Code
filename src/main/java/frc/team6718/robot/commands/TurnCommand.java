@@ -12,7 +12,7 @@ public class TurnCommand extends Command {
 
     /**
      * Turns the robot
-     * @param heading In range -180 - 180 degrees
+     * @param heading In range 0 - 360 degrees
      */
     public TurnCommand(double heading) {
         super("Turn");

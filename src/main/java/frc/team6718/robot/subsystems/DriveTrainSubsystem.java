@@ -6,8 +6,8 @@ import frc.team6718.robot.Robot;
 import frc.team6718.robot.RobotMap;
 import frc.team6718.robot.commands.StopMovingCommand;
 import frc.team6718.robot.pid.CombinedPIDOutput;
-import frc.team6718.robot.pid.MappedPIDSource;
 import frc.team6718.robot.pid.NullPIDOutput;
+import frc.team6718.robot.pid.WrappedPIDSource;
 
 /**
  * Drive Train Subsystem
@@ -48,11 +48,11 @@ public class DriveTrainSubsystem extends Subsystem {
         rightEncoder.setPIDSourceType(PIDSourceType.kRate);
 
         //TODO calibrate PID
-        rotation = new PIDController(0, 0, 0, 0, new MappedPIDSource(Robot.gyroscope, 0, 360, -180, 180), new NullPIDOutput());
+        rotation = new PIDController(0, 0, 0, 0, new WrappedPIDSource(Robot.gyroscope, 360), new NullPIDOutput());
         left = new PIDController(0, 0, 0, 0, leftEncoder, new CombinedPIDOutput(rotation, leftMotorGroup, false));
         right = new PIDController(0, 0, 0, 0, rightEncoder, new CombinedPIDOutput(rotation, rightMotorGroup, true));
 
-        rotation.setInputRange(-180, 180);
+        rotation.setInputRange(0, 360);
         left.setInputRange(-maxSpeed, maxSpeed);
         right.setInputRange(-maxSpeed, maxSpeed);
 

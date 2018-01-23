@@ -5,6 +5,9 @@ import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
+/**
+ * A subsystem that handles the gyroscope heading
+ */
 public class GyroScopeSubsystem extends Subsystem {
 
     public class GyroscopePIDSource implements PIDSource {
@@ -42,6 +45,10 @@ public class GyroScopeSubsystem extends Subsystem {
 
     }
 
+    /**
+     * Get the heading that is 0 - 360
+     * @return a heading in degrees
+     */
     public double getHeading() {
         double heading = gyroscope.getAngle() % 360;
         if (heading < 0) {
@@ -50,6 +57,10 @@ public class GyroScopeSubsystem extends Subsystem {
         return heading;
     }
 
+    /**
+     * Create a GyroscopePIDSource
+     * @return a GyroscopePIDSource
+     */
     public GyroscopePIDSource getPIDSource() {
         return new GyroscopePIDSource(this);
     }

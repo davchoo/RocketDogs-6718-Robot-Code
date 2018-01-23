@@ -93,10 +93,18 @@ public class DriveTrainSubsystem extends Subsystem {
         right.setSetpoint(rightSpeed);
     }
 
+    /**
+     * Set the direction the robot to face
+     * @param angle The direction in degrees
+     */
     public void setTargetHeading(double angle) {
         rotation.setSetpoint(angle);
     }
 
+    /**
+     * Drive the robot forward
+     * @param d The amount of inches
+     */
     public void setTargetDistance(double d) {
         avgDistanceSource.zero();
         enableDistanceControl();
@@ -104,48 +112,83 @@ public class DriveTrainSubsystem extends Subsystem {
         rightDistance.setSetpoint(d);
     }
 
+    /**
+     * Rotate the robot
+     * @param angle the angle delta in degrees
+     */
     public void rotateTargetHeading(double angle) {
         rotation.setSetpoint(rotation.getSetpoint() + angle);
     }
 
+    /**
+     * Check if the heading is within tolerances
+     * @return if heading is within tolerances
+     */
     public boolean isHeadingOnTarget() {
         return rotation.onTarget();
     }
 
+    /**
+     * Check if the distance is within tolerances
+     * @return if both left and right distance PIDControllers are in tolerances
+     */
     public boolean isDistanceOnTarget() {
         return leftDistance.onTarget() && rightDistance.onTarget();
     }
 
+    /**
+     * Get the average distance travel between both sides
+     * @return
+     */
     public double getDistanceCovered() {
         return avgDistanceSource.pidGet();
     }
 
+    /**
+     * Reset both encoders to 0
+     */
     public void resetDistance() {
         avgDistanceSource.zero();
     }
 
+    /**
+     * Enable the left and right velocity PIDs and heading PID.
+     * Also disables left and right distance PIDs
+     */
     public void enable() {
         left.enable();
         right.enable();
         rotation.enable();
-        leftDistance.reset(); //Distance shouldn't be controlling at start
-        rightDistance.reset();
+        disableDistanceControl();
     }
 
+    /**
+     * Disable all PID controllers and reset the setpoints to 0
+     */
     public void disable() {
-        left.disable();
-        right.disable();
+        left.setSetpoint(0);
+        right.setSetpoint(0);
+        left.reset();
+        right.reset();
         rotation.disable();
-        leftDistance.reset();
-        rightDistance.reset();
+        disableDistanceControl();
     }
 
+    /**
+     * Enable the left and right distance PID controllers
+     */
     public void enableDistanceControl() {
         leftDistance.enable();
         rightDistance.enable();
     }
 
+    /**
+     * Disable the left and right distance PID controllers
+     */
     public void disableDistanceControl() {
+        leftDistance.setSetpoint(0);
+        rightDistance.setSetpoint(0);
+        resetDistance();
         leftDistance.reset();
         rightDistance.reset();
     }
@@ -172,6 +215,10 @@ public class DriveTrainSubsystem extends Subsystem {
         setDefaultCommand(new StopMovingCommand());
     }
 
+    /**
+     * Get the config for Pathfinder
+     * @return A Trajectory Config
+     */
     public Trajectory.Config getConfig() {
         return new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, TimedRobot.DEFAULT_PERIOD, MAX_SPEED, MAX_ACCEL, MAX_JERK);
     }

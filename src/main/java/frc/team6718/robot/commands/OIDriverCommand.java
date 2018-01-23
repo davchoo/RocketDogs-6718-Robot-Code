@@ -3,6 +3,9 @@ package frc.team6718.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.team6718.robot.Robot;
 
+/**
+ * Allows the Operator to move the robot with a joystick
+ */
 public class OIDriverCommand extends Command {
     public OIDriverCommand() {
         super("OI Driver");

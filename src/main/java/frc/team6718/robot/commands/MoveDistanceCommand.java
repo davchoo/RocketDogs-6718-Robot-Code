@@ -6,7 +6,6 @@ import frc.team6718.robot.Robot;
 /**
  * MoveDistanceCommand
  * Makes the robot move a certain amount of inches at a speed
- * TODO may overshoot the distance
  */
 public class MoveDistanceCommand extends Command{
     private double distance;

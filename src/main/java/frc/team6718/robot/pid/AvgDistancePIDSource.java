@@ -4,11 +4,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 
-/**
- * Created by davchoo
- * Date: 1/26/2018
- * Time: 12:16 AM
- */
+
 public class AvgDistancePIDSource implements PIDSource {
     private Encoder a, b;
 

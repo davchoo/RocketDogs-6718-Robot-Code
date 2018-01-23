@@ -11,6 +11,10 @@ import jaci.pathfinder.modifiers.TankModifier;
 import static jaci.pathfinder.Pathfinder.r2d;
 import static jaci.pathfinder.Trajectory.Segment;
 
+/**
+ * Follows a path of waypoints
+ * Use the test-pathfinder branch to visualize a path
+ */
 public class FollowPathCommand extends Command {
     private Trajectory left, right;
     private int leftSegment, rightSegment;
@@ -27,7 +31,6 @@ public class FollowPathCommand extends Command {
 
     @Override
     protected void initialize() {
-        Robot.driveTrain.resetDistance();
         Robot.driveTrain.enable();
         leftSegment = 0;
         rightSegment = 0;

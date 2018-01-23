@@ -1,5 +1,10 @@
 package frc.team6718.robot;
 
-public class OI {
+import edu.wpi.first.wpilibj.Joystick;
 
+public class OI {
+    public Joystick joystick;
+    public OI() {
+        joystick = new Joystick(0);
+    }
 }

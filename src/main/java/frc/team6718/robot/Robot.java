@@ -3,6 +3,7 @@ package frc.team6718.robot;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import frc.team6718.robot.commands.OIDriverCommand;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 
 public class Robot extends TimedRobot {
@@ -73,6 +74,7 @@ public class Robot extends TimedRobot {
         // this line or comment it out.
         //if (autonomousCommand != null)
         //	autonomousCommand.cancel();
+        Scheduler.getInstance().add(new OIDriverCommand());
     }
 
     /**

@@ -19,6 +19,7 @@ public class DriveTrainSubsystem extends Subsystem {
     private Spark rightA, rightB;
     private SpeedControllerGroup leftMotorGroup, rightMotorGroup;
     private PIDController left, right, rotation;
+    public static final double maxSpeed = 0; //TODO find max speed
 
     //Units are inches and inches/second
     public Encoder leftEncoder, rightEncoder;
@@ -54,10 +55,10 @@ public class DriveTrainSubsystem extends Subsystem {
         left = new PIDController(0, 0, 0, 0, leftEncoder, new CombinedPIDOutput(rotation, leftMotorGroup, false));
         right = new PIDController(0, 0, 0, 0, rightEncoder, new CombinedPIDOutput(rotation, rightMotorGroup, true));
 
-        //TODO set input ranges
         rotation.setInputRange(-180, 180);
+        left.setInputRange(-maxSpeed, maxSpeed);
+        right.setInputRange(-maxSpeed, maxSpeed);
 
-        //TODO set rotation tolerances
         rotation.setAbsoluteTolerance(1);
 
         left.setContinuous();
@@ -83,6 +84,10 @@ public class DriveTrainSubsystem extends Subsystem {
 
     public void setTargetHeading(double angle) {
         rotation.setSetpoint(angle);
+    }
+
+    public void rotateTargetHeading(double angle) {
+        rotation.setSetpoint(rotation.getSetpoint() + angle);
     }
 
     public boolean isHeadingOnTarget() {

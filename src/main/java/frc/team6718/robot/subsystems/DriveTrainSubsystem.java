@@ -27,14 +27,12 @@ public class DriveTrainSubsystem extends Subsystem {
     public DriveTrainSubsystem() {
         super("Drive Train");
 
-        //TODO check if one of the motors need to be reversed
         leftA = new Spark(RobotMap.DRIVE_TRAIN_LEFT_A);
         leftB = new Spark(RobotMap.DRIVE_TRAIN_LEFT_B);
 
         rightA = new Spark(RobotMap.DRIVE_TRAIN_RIGHT_A);
         rightB = new Spark(RobotMap.DRIVE_TRAIN_RIGHT_B);
 
-        //TODO check if one of the sides need to be reversed
         leftMotorGroup = new SpeedControllerGroup(leftA, leftB);
         rightMotorGroup = new SpeedControllerGroup(rightA, rightB);
 
@@ -43,7 +41,6 @@ public class DriveTrainSubsystem extends Subsystem {
         rightEncoder = new Encoder(RobotMap.DRIVE_TRAIN_ENCODER_RIGHT_A, RobotMap.DRIVE_TRAIN_ENCODER_RIGHT_B, false);
 
         //We have 6in diameter wheels
-        //TODO check if encoder has 1024 pulses
         leftEncoder.setDistancePerPulse(Math.PI * 6d / 1024d);
         rightEncoder.setDistancePerPulse(Math.PI * 6d / 1024d);
 

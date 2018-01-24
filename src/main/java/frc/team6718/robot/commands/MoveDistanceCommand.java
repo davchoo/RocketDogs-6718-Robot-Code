@@ -31,6 +31,11 @@ public class MoveDistanceCommand extends Command{
     }
 
     @Override
+    protected void end() {
+        Robot.driveTrain.drive.arcadeDrive(0, 0);
+    }
+
+    @Override
     protected boolean isFinished() {
         double avg = (Robot.driveTrain.leftEncoder.getDistance() + Robot.driveTrain.rightEncoder.getDistance()) / 2d;
         return avg >= distance;

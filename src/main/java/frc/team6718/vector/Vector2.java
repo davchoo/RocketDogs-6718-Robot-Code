@@ -83,4 +83,9 @@ public class Vector2 implements Vector<Vector2> {
         this.y *= y;
         return this;
     }
+
+    @Override
+    public Vector2 copy() {
+        return new Vector2(x, y);
+    }
 }

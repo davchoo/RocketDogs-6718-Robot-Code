@@ -13,4 +13,5 @@ public interface Vector<T extends Vector<T>> {
     T sub(T v);
     T mul(double v);
     T mul(T v);
+    T copy();
 }

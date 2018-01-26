@@ -4,17 +4,11 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 
-/**
- * Created by davchoo
- * Date: 1/26/2018
- * Time: 12:16 AM
- */
-public class AvgDistancePIDSource implements PIDSource {
-    private Encoder a, b;
+public class EncoderDispPIDSource implements PIDSource {
+    private Encoder encoder;
 
-    public AvgDistancePIDSource(Encoder a, Encoder b) {
-        this.a = a;
-        this.b = b;
+    public EncoderDispPIDSource(Encoder encoder) {
+        this.encoder = encoder;
     }
 
     @Override
@@ -27,13 +21,8 @@ public class AvgDistancePIDSource implements PIDSource {
         return PIDSourceType.kDisplacement;
     }
 
-    public void zero() {
-        a.reset();
-        b.reset();
-    }
-
     @Override
     public double pidGet() {
-        return (a.getDistance() + b.getDistance()) / 2d;
+        return encoder.getDistance();
     }
 }

@@ -24,14 +24,13 @@ public class MoveDistanceCommand extends Command{
     @Override
     protected void initialize() {
         Robot.driveTrain.enable();
-        Robot.driveTrain.leftEncoder.reset();
-        Robot.driveTrain.rightEncoder.reset();
+        Robot.driveTrain.resetDistance();
         Robot.driveTrain.setTargetDistance(distance);
     }
 
     @Override
     protected void end() {
-        Robot.driveTrain.setTargetSpeeds(0, 0);
+        Robot.driveTrain.setTargetSpeeds(0, 0); //Stop motors
         Robot.driveTrain.disable();
     }
 

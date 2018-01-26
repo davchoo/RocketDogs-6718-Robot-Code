@@ -6,7 +6,9 @@ import frc.team6718.robot.Robot;
 import frc.team6718.robot.RobotMap;
 import frc.team6718.robot.commands.StopMovingCommand;
 import frc.team6718.robot.pid.AvgDistancePIDSource;
+import frc.team6718.robot.pid.EncoderDispPIDSource;
 import frc.team6718.robot.pid.NullPIDOutput;
+import jaci.pathfinder.Trajectory;
 
 /**
  * Drive Train Subsystem
@@ -14,13 +16,16 @@ import frc.team6718.robot.pid.NullPIDOutput;
  * to make sure the robot goes straight
  */
 public class DriveTrainSubsystem extends Subsystem {
+    public static final double MAX_SPEED = 0; //TODO find max speed
+    public static final double MAX_ACCEL = 0; //TODO find max acceleration
+    public static final double MAX_JERK = 0; //TODO find max jerk
+    public static final double TRACK_WIDTH = 0; //TODO find track width
+
     private Spark leftA, leftB;
     private Spark rightA, rightB;
     private SpeedControllerGroup leftMotorGroup, rightMotorGroup;
-    private PIDController left, right, rotation, distance;
+    private PIDController left, right, rotation, leftDistance, rightDistance;
     private AvgDistancePIDSource avgDistanceSource;
-    public static final double MAX_SPEED = 0; //TODO find max speed
-
     //Units are inches and inches/second
     public Encoder leftEncoder, rightEncoder;
 
@@ -53,13 +58,16 @@ public class DriveTrainSubsystem extends Subsystem {
         left = new PIDController(0, 0, 0, 0, leftEncoder, new NullPIDOutput());
         right = new PIDController(0, 0, 0, 0, rightEncoder, new NullPIDOutput());
         rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope, new NullPIDOutput());
-        distance = new PIDController(0, 0, 0, 0, avgDistanceSource, new NullPIDOutput());
+        leftDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(leftEncoder), new NullPIDOutput());
+        rightDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(rightEncoder), new NullPIDOutput());
 
         rotation.setInputRange(0, 360);
-        distance.setOutputRange(-MAX_SPEED, MAX_SPEED);
+        leftDistance.setOutputRange(-MAX_SPEED, MAX_SPEED);
+        rightDistance.setOutputRange(-MAX_SPEED, MAX_SPEED);
 
         rotation.setAbsoluteTolerance(1);
-        distance.setAbsoluteTolerance(1);
+        leftDistance.setAbsoluteTolerance(1);
+        rightDistance.setAbsoluteTolerance(1);
 
         left.setContinuous();
         right.setContinuous();
@@ -69,7 +77,8 @@ public class DriveTrainSubsystem extends Subsystem {
         left.disable();
         right.disable();
         rotation.disable();
-        distance.disable();
+        leftDistance.disable();
+        rightDistance.disable();
     }
 
     /**
@@ -79,7 +88,7 @@ public class DriveTrainSubsystem extends Subsystem {
      * @param rightSpeed The target speed for the two right motors (in/s)
      */
     public void setTargetSpeeds(double leftSpeed, double rightSpeed) {
-        distance.disable();
+        disableDistanceControl();
         left.setSetpoint(leftSpeed);
         right.setSetpoint(rightSpeed);
     }
@@ -90,8 +99,9 @@ public class DriveTrainSubsystem extends Subsystem {
 
     public void setTargetDistance(double d) {
         avgDistanceSource.zero();
-        distance.enable();
-        distance.setSetpoint(d);
+        enableDistanceControl();
+        leftDistance.setSetpoint(d);
+        rightDistance.setSetpoint(d);
     }
 
     public void rotateTargetHeading(double angle) {
@@ -103,29 +113,48 @@ public class DriveTrainSubsystem extends Subsystem {
     }
 
     public boolean isDistanceOnTarget() {
-        return distance.onTarget();
+        return leftDistance.onTarget() && rightDistance.onTarget();
+    }
+
+    public double getDistanceCovered() {
+        return avgDistanceSource.pidGet();
+    }
+
+    public void resetDistance() {
+        avgDistanceSource.zero();
     }
 
     public void enable() {
         left.enable();
         right.enable();
         rotation.enable();
-        distance.disable(); //Distance shouldn't be controlling at start
+        leftDistance.reset(); //Distance shouldn't be controlling at start
+        rightDistance.reset();
     }
 
     public void disable() {
         left.disable();
         right.disable();
         rotation.disable();
-        distance.disable();
+        leftDistance.reset();
+        rightDistance.reset();
+    }
+
+    public void enableDistanceControl() {
+        leftDistance.enable();
+        rightDistance.enable();
+    }
+
+    public void disableDistanceControl() {
+        leftDistance.reset();
+        rightDistance.reset();
     }
 
     @Override
     public void periodic() {
-        if (distance.isEnabled()) {
-            double speed = distance.get();
-            left.setSetpoint(speed);
-            right.setSetpoint(speed);
+        if (leftDistance.isEnabled()) {
+            left.setSetpoint(leftDistance.get());
+            right.setSetpoint(rightDistance.get());
         }
         double rotationPID = rotation.get();
         double leftPID = left.get() - rotationPID;
@@ -141,5 +170,9 @@ public class DriveTrainSubsystem extends Subsystem {
     @Override
     protected void initDefaultCommand() {
         setDefaultCommand(new StopMovingCommand());
+    }
+
+    public Trajectory.Config getConfig() {
+        return new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, TimedRobot.DEFAULT_PERIOD, MAX_SPEED, MAX_ACCEL, MAX_JERK);
     }
 }

@@ -57,7 +57,7 @@ public class DriveTrainSubsystem extends Subsystem {
         //TODO calibrate PID
         left = new PIDController(0, 0, 0, 0, leftEncoder, new NullPIDOutput());
         right = new PIDController(0, 0, 0, 0, rightEncoder, new NullPIDOutput());
-        rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope, new NullPIDOutput());
+        rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope.getPIDSource(), new NullPIDOutput());
         leftDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(leftEncoder), new NullPIDOutput());
         rightDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(rightEncoder), new NullPIDOutput());
 

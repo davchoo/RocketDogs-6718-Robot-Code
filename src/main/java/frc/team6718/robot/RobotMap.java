@@ -17,16 +17,11 @@ public class RobotMap {
     //Arm potentiometers (AIO pins)
     public static final int ARM_POT_JOINT_1 = 0;
     public static final int ARM_POT_JOINT_2 = 1;
-    public static final int ARM_POT_JOINT_3 = 2;
 
     //Arm motor (PWM pins)
     public static final int ARM_MOTOR_JOINT_1 = 4;
     public static final int ARM_MOTOR_JOINT_2 = 5;
-    public static final int ARM_MOTOR_JOINT_3 = 6;
 
     //Gripper motor (PWM pins)
     public static final int GRIPPER_MOTOR = 7;
-
-    //Gripper potentiometers
-    public static final int GRIPPER_POT = 3;
 }

@@ -96,17 +96,4 @@ public class ArmSubsystem extends Subsystem {
             return false;
         }
     }
-
-    //TODO ADD GRIPPER
-    public void closeGripper() {
-
-    }
-
-    public void openGripper() {
-
-    }
-
-    public boolean isGripperOpen() {
-        return false;
-    }
 }

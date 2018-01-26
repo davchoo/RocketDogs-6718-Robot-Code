@@ -93,4 +93,9 @@ public class Vector3 implements Vector<Vector3> {
         this.z *= z;
         return this;
     }
+
+    @Override
+    public Vector3 copy() {
+        return new Vector3(x, y, z);
+    }
 }

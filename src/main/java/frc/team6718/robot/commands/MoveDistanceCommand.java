@@ -35,6 +35,11 @@ public class MoveDistanceCommand extends Command{
     }
 
     @Override
+    protected void end() {
+        Robot.driveTrain.drive.arcadeDrive(0, 0);
+    }
+
+    @Override
     protected boolean isFinished() {
         return Robot.driveTrain.isDistanceOnTarget();
     }

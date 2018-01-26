@@ -1,5 +1,5 @@
-# RocketDogs 6718 Robot Code
-Robot code for team 6718 or Rocket Dogs!
+# RocketDogs Robot Code
+Code for "Bump", a robot built by the RocketDogs
 
 ## Create IDE project
 - ```gradlew.bat idea``` Create IDEA project files

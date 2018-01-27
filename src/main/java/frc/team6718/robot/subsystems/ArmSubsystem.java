@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.team6718.robot.RobotMap;
 import frc.team6718.vector.Vector2;
 
+//TODO change gripper to servos
+//TODO Joints are controlled by Lead screws
 public class ArmSubsystem extends Subsystem {
     class Joint {
         private AnalogPotentiometer potentiometer;
@@ -18,6 +20,7 @@ public class ArmSubsystem extends Subsystem {
             this.potentiometer = new AnalogPotentiometer(potChannel, fullRange, offset);
             this.motor = new Spark(motorPWMPin);
             this.controller = new PIDController(Kp, Ki, Kd, Kf, potentiometer, motor);
+            this.controller.setAbsoluteTolerance(1);
             this.length = length;
         }
 
@@ -27,6 +30,10 @@ public class ArmSubsystem extends Subsystem {
 
         public void setAngle(double angle) {
             controller.setSetpoint(angle);
+        }
+
+        public boolean isOnTarget() {
+            return controller.onTarget();
         }
     }
 
@@ -97,6 +104,10 @@ public class ArmSubsystem extends Subsystem {
             System.err.println("Rule violation! One of arms are outside the perimeter!");
             return false;
         }
+    }
+
+    public boolean isJointOnTarget(int jointId) {
+        return joints[jointId].isOnTarget();
     }
 
     public void closeGripper() {

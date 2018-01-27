@@ -4,17 +4,20 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.team6718.robot.commands.OIDriverCommand;
+import frc.team6718.robot.subsystems.ArmSubsystem;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 
 public class Robot extends TimedRobot {
     public static OI oi;
     public static DriveTrainSubsystem driveTrain;
+    public static ArmSubsystem arm;
     public static ADXRS450_Gyro gyroscope;
 
     @Override
     public void robotInit() {
         gyroscope = new ADXRS450_Gyro();
         driveTrain = new DriveTrainSubsystem();
+        arm = new ArmSubsystem();
         oi = new OI();
     }
 

@@ -21,12 +21,12 @@ public class MoveDistanceCommand extends Command{
     protected void initialize() {
         Robot.driveTrain.leftEncoder.reset();
         Robot.driveTrain.rightEncoder.reset();
-        lastAngle = Robot.gyroscope.getAngle();
+        lastAngle = Robot.gyroscope.getHeading();
     }
 
     @Override
     protected void execute() {
-        double xRot = -(Robot.gyroscope.getAngle() - lastAngle) * P;
+        double xRot = -(Robot.gyroscope.getHeading() - lastAngle) * P;
         Robot.driveTrain.drive.arcadeDrive(speed, xRot);
     }
 

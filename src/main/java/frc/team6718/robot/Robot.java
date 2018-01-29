@@ -1,7 +1,7 @@
 package frc.team6718.robot;
 
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.team6718.robot.commands.OIDriverCommand;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
@@ -11,6 +11,8 @@ public class Robot extends TimedRobot {
     public static OI oi;
     public static DriveTrainSubsystem driveTrain;
     public static GyroScopeSubsystem gyroscope;
+
+    private Command autonomousCommand;
 
     @Override
     public void robotInit() {
@@ -26,7 +28,7 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void disabledInit() {
-
+        driveTrain.drive.stopMotor();
     }
 
     @Override
@@ -55,8 +57,10 @@ public class Robot extends TimedRobot {
          */
 
         // schedule the autonomous command (example)
-        //if (autonomousCommand != null)
-        //	autonomousCommand.start();
+        autonomousCommand = null; //TODO add auto command
+        if (autonomousCommand != null) {
+            Scheduler.getInstance().add(autonomousCommand);
+        }
     }
 
     /**
@@ -73,8 +77,12 @@ public class Robot extends TimedRobot {
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
         // this line or comment it out.
-        //if (autonomousCommand != null)
-        //	autonomousCommand.cancel();
+        if (autonomousCommand != null) {
+            if (!autonomousCommand.isCompleted()) {
+                System.out.println("Autonomous didn't finish! Cancelling...");
+            }
+            autonomousCommand.cancel();
+        }
         Scheduler.getInstance().add(new OIDriverCommand());
     }
 

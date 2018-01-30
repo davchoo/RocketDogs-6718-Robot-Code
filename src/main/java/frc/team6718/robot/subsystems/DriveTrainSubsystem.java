@@ -8,6 +8,7 @@ import frc.team6718.robot.commands.StopMovingCommand;
 import frc.team6718.robot.pid.AvgDistancePIDSource;
 import frc.team6718.robot.pid.EncoderDispPIDSource;
 import frc.team6718.robot.pid.NullPIDOutput;
+import frc.team6718.robot.pid.PIDControllerPIDOutput;
 import jaci.pathfinder.Trajectory;
 
 /**
@@ -16,9 +17,9 @@ import jaci.pathfinder.Trajectory;
  * to make sure the robot goes straight
  */
 public class DriveTrainSubsystem extends Subsystem {
-    public static final double MAX_SPEED = 0; //TODO find max speed
-    public static final double MAX_ACCEL = 0; //TODO find max acceleration
-    public static final double MAX_JERK = 0; //TODO find max jerk
+    public static final double MAX_SPEED = 126.6; //TODO find max speed
+    public static final double MAX_ACCEL = 10; //TODO find max acceleration
+    public static final double MAX_JERK = 2; //TODO find max jerk
     public static final double TRACK_WIDTH = 23;
 
     private Spark leftA, leftB;
@@ -29,6 +30,7 @@ public class DriveTrainSubsystem extends Subsystem {
     //Units are inches and inches/second
     public Encoder leftEncoder, rightEncoder;
 
+    //TODO check if this many PIDControllers is slowing down the RoboRIO
     public DriveTrainSubsystem() {
         super("Drive Train");
 
@@ -58,8 +60,8 @@ public class DriveTrainSubsystem extends Subsystem {
         left = new PIDController(0, 0, 0, 0, leftEncoder, new NullPIDOutput());
         right = new PIDController(0, 0, 0, 0, rightEncoder, new NullPIDOutput());
         rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope.getPIDSource(), new NullPIDOutput());
-        leftDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(leftEncoder), new NullPIDOutput());
-        rightDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(rightEncoder), new NullPIDOutput());
+        leftDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(leftEncoder), new PIDControllerPIDOutput(left));
+        rightDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(rightEncoder), new PIDControllerPIDOutput(right));
 
         rotation.setInputRange(0, 360);
         leftDistance.setOutputRange(-MAX_SPEED, MAX_SPEED);
@@ -195,10 +197,6 @@ public class DriveTrainSubsystem extends Subsystem {
 
     @Override
     public void periodic() {
-        if (leftDistance.isEnabled()) {
-            left.setSetpoint(leftDistance.get());
-            right.setSetpoint(rightDistance.get());
-        }
         double rotationPID = rotation.get();
         double leftPID = left.get() - rotationPID;
         double rightPID = right.get() + rotationPID;

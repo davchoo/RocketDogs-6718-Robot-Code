@@ -17,7 +17,7 @@ import static jaci.pathfinder.Trajectory.Segment;
  */
 public class FollowPathCommand extends Command {
     private Trajectory left, right;
-    private int leftSegment, rightSegment;
+    private int segment;
 
     public FollowPathCommand(Waypoint[] points) {
         super("Follow Path");
@@ -32,25 +32,22 @@ public class FollowPathCommand extends Command {
     @Override
     protected void initialize() {
         Robot.driveTrain.enable();
-        leftSegment = 0;
-        rightSegment = 0;
+        segment = 0;
     }
 
     @Override
     protected void execute() { //TODO check if velocity pid is good enough probably not :C
-        //TODO check if left and right segments are always the same length
         double leftSpeed = 0;
         double rightSpeed = 0;
-        if (leftSegment < left.length()) {
-            Segment segment = left.get(leftSegment);
-            leftSpeed = segment.velocity;
-            Robot.driveTrain.setTargetHeading(r2d(segment.heading));
-            leftSegment++;
-        }
-        if (rightSegment < right.length()) {
-            Segment segment = right.get(rightSegment);
-            rightSpeed = segment.velocity;
-            rightSegment++;
+        if (segment < left.length()) {
+            Segment leftSegment = left.get(segment);
+            leftSpeed = leftSegment.velocity;
+
+            Segment rightSegment = right.get(segment);
+            rightSpeed = rightSegment.velocity;
+
+            Robot.driveTrain.setTargetHeading(r2d(leftSegment.heading));
+            segment++;
         }
         Robot.driveTrain.setTargetSpeeds(leftSpeed, rightSpeed);
     }
@@ -64,6 +61,6 @@ public class FollowPathCommand extends Command {
 
     @Override
     protected boolean isFinished() {
-        return leftSegment >= left.length() && rightSegment >= right.length();
+        return segment >= left.length();
     }
 }

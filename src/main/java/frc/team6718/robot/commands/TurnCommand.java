@@ -8,7 +8,7 @@ import frc.team6718.robot.Robot;
  * Turns the robot to face the right direction
  */
 public class TurnCommand extends Command {
-    private double heading;
+    private final double heading;
 
     /**
      * Turns the robot
@@ -34,5 +34,9 @@ public class TurnCommand extends Command {
     @Override
     protected boolean isFinished() {
         return Robot.driveTrain.isHeadingOnTarget();
+    }
+
+    public double getHeading() {
+        return heading;
     }
 }

@@ -57,11 +57,11 @@ public class DriveTrainSubsystem extends Subsystem {
         avgDistanceSource = new AvgDistancePIDSource(leftEncoder, rightEncoder);
 
         //TODO calibrate PID
-        left = new PIDController(0, 0, 0, 0, leftEncoder, new NullPIDOutput());
-        right = new PIDController(0, 0, 0, 0, rightEncoder, new NullPIDOutput());
-        rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope.getPIDSource(), new NullPIDOutput());
-        leftDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(leftEncoder), new PIDControllerPIDOutput(left));
-        rightDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(rightEncoder), new PIDControllerPIDOutput(right));
+        left = new PIDController(0, 0, 0, 0, leftEncoder, new NullPIDOutput(), 0.02);
+        right = new PIDController(0, 0, 0, 0, rightEncoder, new NullPIDOutput(), 0.02);
+        rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope.getPIDSource(), new NullPIDOutput(), 0.02);
+        leftDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(leftEncoder), new PIDControllerPIDOutput(left), 0.02);
+        rightDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(rightEncoder), new PIDControllerPIDOutput(right), 0.02);
 
         rotation.setInputRange(0, 360);
         leftDistance.setOutputRange(-MAX_SPEED, MAX_SPEED);
@@ -76,11 +76,7 @@ public class DriveTrainSubsystem extends Subsystem {
         rotation.setContinuous();
 
         //Start disabled for safety
-        left.disable();
-        right.disable();
-        rotation.disable();
-        leftDistance.disable();
-        rightDistance.disable();
+        disable();
     }
 
     /**
@@ -223,5 +219,10 @@ public class DriveTrainSubsystem extends Subsystem {
      */
     public Trajectory.Config getConfig() {
         return new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, TimedRobot.DEFAULT_PERIOD, MAX_SPEED, MAX_ACCEL, MAX_JERK);
+    }
+
+    public void test() {
+        leftMotorGroup.set(1);
+        rightMotorGroup.set(1);
     }
 }

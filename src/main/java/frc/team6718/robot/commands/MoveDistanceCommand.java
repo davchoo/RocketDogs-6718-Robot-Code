@@ -8,7 +8,7 @@ import frc.team6718.robot.Robot;
  * Makes the robot move a certain amount of inches at a speed
  */
 public class MoveDistanceCommand extends Command{
-    private double distance;
+    private final double distance;
 
     /**
      * Move the robot forward
@@ -38,5 +38,7 @@ public class MoveDistanceCommand extends Command{
         return Robot.driveTrain.isDistanceOnTarget();
     }
 
-
+    public double getDistance() {
+        return distance;
+    }
 }

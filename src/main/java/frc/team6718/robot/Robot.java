@@ -4,8 +4,15 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.team6718.robot.commands.OIDriverCommand;
+import frc.team6718.robot.commands.auto.LLAutoCommandGroup;
+import frc.team6718.robot.commands.auto.LRAutoCommandGroup;
+import frc.team6718.robot.commands.auto.RLAutoCommandGroup;
+import frc.team6718.robot.commands.auto.RRAutoCommandGroup;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 import frc.team6718.robot.subsystems.GyroScopeSubsystem;
+import static openrio.powerup.MatchData.*;
+import openrio.powerup.MatchData;
+
 
 public class Robot extends TimedRobot {
     public static OI oi;
@@ -13,6 +20,11 @@ public class Robot extends TimedRobot {
     public static GyroScopeSubsystem gyroscope;
 
     private Command autonomousCommand;
+    private boolean hasRunAutonomousCommand = false;
+
+    private OwnedSide switchNear = OwnedSide.UNKNOWN;
+    private OwnedSide scale = OwnedSide.UNKNOWN;
+    private OwnedSide switchFar = OwnedSide.UNKNOWN;
 
     @Override
     public void robotInit() {
@@ -31,36 +43,34 @@ public class Robot extends TimedRobot {
         driveTrain.disable();
     }
 
-    @Override
-    public void disabledPeriodic() {
-        Scheduler.getInstance().run();
+    private void checkSides() {
+        if (switchNear == OwnedSide.UNKNOWN || scale == OwnedSide.UNKNOWN || switchFar == OwnedSide.UNKNOWN) {
+            switchNear = getOwnedSide(GameFeature.SWITCH_NEAR);
+            scale = getOwnedSide(GameFeature.SCALE);
+            switchFar = getOwnedSide(GameFeature.SWITCH_FAR);
+        }else{
+            if (switchNear == OwnedSide.LEFT) {
+                if ()
+                autonomousCommand = new LLAutoCommandGroup();
+            }else if(switchNear == OwnedSide.RIGHT){
+                autonomousCommand = new RRAutoCommandGroup();
+            }
+            if (autonomousCommand != null && !hasRunAutonomousCommand) {
+                hasRunAutonomousCommand = true;
+                Scheduler.getInstance().add(autonomousCommand);
+            }
+        }
     }
 
-    /**
-     * This autonomous (along with the chooser code above) shows how to select
-     * between different autonomous modes using the dashboard. The sendable
-     * chooser code works with the Java SmartDashboard.
-     *
-     * You can add additional auto modes by adding additional commands to the
-     * chooser code above (like the commented example) or additional comparisons
-     * to the switch structure below with additional strings & commands.
-     */
+    @Override
+    public void disabledPeriodic() {
+        checkSides();
+    }
+
+
     @Override
     public void autonomousInit() {
-        //autonomousCommand = chooser.getSelected();
-
-        /*
-         * String autoSelected = SmartDashboard.getString("Auto Selector",
-         * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
-         * = new MyAutoCommand(); break; case "Default Auto": default:
-         * autonomousCommand = new ExampleCommand(); break; }
-         */
-
-        // schedule the autonomous command (example)
-        autonomousCommand = null; //TODO add auto command
-        if (autonomousCommand != null) {
-            Scheduler.getInstance().add(autonomousCommand);
-        }
+        checkSides();
     }
 
     /**
@@ -68,11 +78,13 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousPeriodic() {
+        checkSides();
         Scheduler.getInstance().run();
     }
 
     @Override
     public void teleopInit() {
+        hasRunAutonomousCommand = true;
         // This makes sure that the autonomous stops running when
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove

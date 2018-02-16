@@ -56,7 +56,7 @@ public class ArmSubsystem extends Subsystem {
 
     public ArmSubsystem() {
         upperArm = new Spark(RobotMap.ARM_UPPER_MOTOR);
-        lowerArm = new WPI_TalonSRX(RobotMap.ARM_LOWER_MOTOR);
+        //lowerArm = new WPI_TalonSRX(RobotMap.ARM_LOWER_MOTOR);
         gripper = new Spark(RobotMap.GRIPPER_MOTOR);
 
         upperArmPot = new AnalogPotentiometer(0, 135, 35); //TODO find potentiometer range and offset

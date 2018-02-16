@@ -1,7 +1,12 @@
 package frc.team6718.robot;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
@@ -17,6 +22,9 @@ public class MB1003UltrasonicSensor {
     private Timer timer;
     private int distance;
     private ReentrantLock distanceLock;
+
+    private NetworkTable ultrasonicTable;
+    private NetworkTableEntry distanceEntry, textEntry;
 
     private class UpdateTask extends TimerTask{
         private MB1003UltrasonicSensor sensor;
@@ -35,6 +43,9 @@ public class MB1003UltrasonicSensor {
         timer = new Timer();
         timer.schedule(new UpdateTask(this), 0, 100);
         distanceLock = new ReentrantLock();
+        ultrasonicTable = NetworkTableInstance.getDefault().getTable("MB1003");
+        distanceEntry = ultrasonicTable.getEntry("Distance");
+        textEntry = ultrasonicTable.getEntry("Text");
     }
 
 
@@ -52,7 +63,11 @@ public class MB1003UltrasonicSensor {
                         int num = data[i] - 48;
                         distance += num * (10 ^ (4 - i));
                     }
-                }finally {
+                    distanceEntry.setNumber(distance);
+                    textEntry.setString(new String(data, 0, 5, "US-ASCII"));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } finally {
                     distanceLock.unlock();
                 }
             }

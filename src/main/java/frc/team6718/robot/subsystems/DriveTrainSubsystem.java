@@ -75,6 +75,13 @@ public class DriveTrainSubsystem extends Subsystem {
         right.setContinuous();
         rotation.setContinuous();
 
+        //Add to shuffleboard
+        leftEncoder.setName("Left Encoder");
+        leftEncoder.setSubsystem("Drive Train");
+
+        rightEncoder.setName("Right Encoder");
+        rightEncoder.setSubsystem("Drive Train");
+
         //Start disabled for safety
         disable();
     }

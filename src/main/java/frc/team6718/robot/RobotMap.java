@@ -19,10 +19,17 @@ public class RobotMap {
 
     //Upper Arm motor (PWM pins)
     public static final int ARM_UPPER_MOTOR = 4;
+    public static final int ARM_UPPER_MOTOR_2 = 5;
 
     //Lower Arm motor (Talon device ID)
     public static final int ARM_LOWER_MOTOR = 0;
 
+    //Lower Arm ultrasonic sensor (AIO pins)
+    public static final int ARM_LOWER_USENSOR = 1;
+
     //Gripper motor (PWM pins)
-    public static final int GRIPPER_MOTOR = 7;
+    public static final int GRIPPER_MOTOR = 6;
+
+    //Gripper motor hall sensor (AIO pins)
+    public static final int GRIPPER_MOTOR_HALL  = 2;
 }

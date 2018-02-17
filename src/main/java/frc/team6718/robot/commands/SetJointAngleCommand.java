@@ -14,11 +14,10 @@ public class SetJointAngleCommand extends Command {
 
     @Override
     protected void initialize() {
-        Robot.arm.setAngle(jointId, angle);
     }
 
     @Override
     protected boolean isFinished() {
-        return Robot.arm.isJointOnTarget(jointId);
+        return false;
     }
 }

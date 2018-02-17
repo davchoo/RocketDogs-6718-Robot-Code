@@ -3,16 +3,21 @@ package frc.team6718.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.team6718.robot.MB1003UltrasonicSensor;
 import frc.team6718.robot.RobotMap;
 
 public class ArmSubsystem extends Subsystem {
-    private Spark upperArm, gripper;
+    private Spark upperArmA, upperArmB, gripper;
+    private SpeedControllerGroup upperArm;
     private WPI_TalonSRX lowerArm;
 
     //Sensors
     private AnalogPotentiometer upperArmPot;
     private MB1003UltrasonicSensor lowerArmUSensor;
+    private AnalogInput gripperInput;
 
     //PID controllers
     private PIDController upperArmPID, lowerArmPID;
@@ -55,18 +60,53 @@ public class ArmSubsystem extends Subsystem {
 
 
     public ArmSubsystem() {
-        upperArm = new Spark(RobotMap.ARM_UPPER_MOTOR);
-        //lowerArm = new WPI_TalonSRX(RobotMap.ARM_LOWER_MOTOR);
+        super("Arm");
+        upperArmA = new Spark(RobotMap.ARM_UPPER_MOTOR);
+        upperArmB = new Spark(RobotMap.ARM_UPPER_MOTOR_2);
+        upperArm = new SpeedControllerGroup(upperArmA, upperArmB);
+
+        lowerArm = new WPI_TalonSRX(RobotMap.ARM_LOWER_MOTOR);
+
         gripper = new Spark(RobotMap.GRIPPER_MOTOR);
 
-        upperArmPot = new AnalogPotentiometer(0, 135, 35); //TODO find potentiometer range and offset
-        lowerArmUSensor = new MB1003UltrasonicSensor();
+        upperArmPot = new AnalogPotentiometer(RobotMap.ARM_UPPER_POT, 135, 35); //TODO find potentiometer range and offset
+        lowerArmUSensor = new MB1003UltrasonicSensor(RobotMap.ARM_LOWER_USENSOR);
+        gripperInput = new AnalogInput(RobotMap.GRIPPER_MOTOR_HALL);
 
-        upperArmPID = new PIDController(0, 0, 0, new UpperArmPIDSource(), upperArm);
-        lowerArmPID = new PIDController(0, 0, 0, new LowerArmPIDSource(), lowerArm);
+        //upperArmPID = new PIDController(0, 0, 0, new UpperArmPIDSource(), upperArm);
+        //lowerArmPID = new PIDController(0, 0, 0, new LowerArmPIDSource(), lowerArm);
 
-        upperArmPID.setAbsoluteTolerance(1);
-        lowerArmPID.setAbsoluteTolerance(1);
+        //upperArmPID.setAbsoluteTolerance(1);
+        //lowerArmPID.setAbsoluteTolerance(1);
+
+        //Set stuff in Shuffleboard
+        upperArm.setName("Upper Arm");
+        upperArm.setSubsystem("Arm");
+
+        lowerArm.setName("Lower Arm");
+        lowerArm.setSubsystem("Arm");
+
+        gripper.setName("Gripper");
+        gripper.setSubsystem("Arm");
+
+        upperArmPot.setName("Upper Arm Pot");
+        upperArmPot.setSubsystem("Arm");
+
+        lowerArmUSensor.setName("Lower Arm USensor");
+        lowerArmUSensor.setSubsystem("Arm");
+
+        gripperInput.setName("Gripper Hall Sensor");
+        gripperInput.setSubsystem("Arm");
+
+        //upperArmPID.setName("Upper Arm PID");
+        //upperArmPID.setSubsystem("Arm");
+
+        //lowerArmPID.setName("Lower arm PID");
+        //lowerArmPID.setSubsystem("Arm");
+
+
+        //LiveWindow.add(upperArmPID);
+        //LiveWindow.add(lowerArmPID);
 
         disable();
     }
@@ -119,8 +159,8 @@ public class ArmSubsystem extends Subsystem {
     }
 
     public void disable() {
-        lowerArmPID.disable();
-        upperArmPID.disable();
+//        lowerArmPID.disable();
+//        upperArmPID.disable();
     }
 
     public void enable() {
@@ -134,5 +174,16 @@ public class ArmSubsystem extends Subsystem {
 
     public void openGripper() {
         gripper.set(0.5); //TODO figure out how fast the gripper needs to open and to keep it open
+    }
+
+    public void set(double lower, double upper, double grip) {
+        upperArm.set(upper);
+        lowerArm.set(lower);
+        gripper.set(grip);
+    }
+
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
     }
 }

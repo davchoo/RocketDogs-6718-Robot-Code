@@ -82,6 +82,21 @@ public class DriveTrainSubsystem extends Subsystem {
         rightEncoder.setName("Right Encoder");
         rightEncoder.setSubsystem("Drive Train");
 
+        left.setName("Left Vel PID");
+        left.setSubsystem("Drive Train");
+
+        right.setName("Right Vel PID");
+        right.setSubsystem("Drive Train");
+
+        leftDistance.setName("Left Dist PID");
+        leftDistance.setSubsystem("Drive Train");
+
+        rightDistance.setName("Right Dist PID");
+        rightDistance.setSubsystem("Drive Train");
+
+        rotation.setName("Rotation PID");
+        rotation.setSubsystem("Drive Train");
+
         //Start disabled for safety
         disable();
     }

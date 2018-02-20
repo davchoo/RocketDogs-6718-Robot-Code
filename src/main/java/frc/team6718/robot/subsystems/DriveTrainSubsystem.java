@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import frc.team6718.robot.RobotMap;
 import frc.team6718.robot.commands.StopDriveTrainCommand;
 
@@ -38,6 +39,15 @@ public class DriveTrainSubsystem extends Subsystem {
         rightEncoder.setDistancePerPulse(Math.PI * 6d / 1024d);
 
         drive = new DifferentialDrive(left, right);
+
+        //Add to shuffleboard
+        drive.setSubsystem("Drive Train");
+
+        leftEncoder.setName("Left Encoder");
+        leftEncoder.setSubsystem("Drive Train");
+
+        rightEncoder.setName("Right Encoder");
+        rightEncoder.setSubsystem("Drive Train");
     }
 
     @Override

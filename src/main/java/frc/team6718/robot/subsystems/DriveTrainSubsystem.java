@@ -2,6 +2,7 @@ package frc.team6718.robot.subsystems;
 
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.team6718.robot.Robot;
 import frc.team6718.robot.RobotMap;
 import frc.team6718.robot.commands.StopMovingCommand;
@@ -71,18 +72,25 @@ public class DriveTrainSubsystem extends Subsystem {
         leftDistance.setAbsoluteTolerance(1);
         rightDistance.setAbsoluteTolerance(1);
 
-        left.setContinuous();
-        right.setContinuous();
         rotation.setContinuous();
 
         //Add to shuffleboard
-        leftEncoder.setName("Left Encoder", "Drive Train");
-        rightEncoder.setName("Right Encoder", "Drive Train");
-        left.setName("Left Vel PID", "Drive Train");
-        right.setName("Right Vel PID", "Drive Train");
-        leftDistance.setName("Left Dist PID", "Drive Train");
-        rightDistance.setName("Right Dist PID", "Drive Train");
-        rotation.setName("Rotation PID", "Drive Train");
+        leftEncoder.setName("Drive Train", "Left Encoder");
+        rightEncoder.setName("Drive Train", "Right Encoder");
+        left.setName("Drive Train", "Left Vel PID");
+        right.setName("Drive Train", "Right Vel PID");
+        leftDistance.setName("Drive Train", "Left Dist PID");
+        rightDistance.setName("Drive Train", "Right Dist PID");
+        rotation.setName("Drive Train", "Rotation PID");
+
+        SmartDashboard.putData(leftEncoder);
+        SmartDashboard.putData(rightEncoder);
+        SmartDashboard.putData(left);
+        SmartDashboard.putData(right);
+        SmartDashboard.putData(leftDistance);
+        SmartDashboard.putData(rightDistance);
+        SmartDashboard.putData(rotation);
+
 
         //Start disabled for safety
         disable();

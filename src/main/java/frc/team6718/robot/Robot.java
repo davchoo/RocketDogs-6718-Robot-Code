@@ -1,5 +1,8 @@
 package frc.team6718.robot;
 
+import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoMode;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -16,6 +19,7 @@ public class Robot extends TimedRobot {
     public static OI oi;
     public static DriveTrainSubsystem driveTrain;
     public static GyroScopeSubsystem gyroscope;
+    public static UsbCamera camera;
 
     private Command autonomousCommand;
     private boolean hasRunAutonomousCommand = false;
@@ -29,6 +33,9 @@ public class Robot extends TimedRobot {
         gyroscope = new GyroScopeSubsystem();
         driveTrain = new DriveTrainSubsystem();
         oi = new OI();
+        //Create and start capturing video from the camera
+        camera = CameraServer.getInstance().startAutomaticCapture();
+        camera.setVideoMode(VideoMode.PixelFormat.kMJPEG, 320, 240, 15);
     }
 
     /**

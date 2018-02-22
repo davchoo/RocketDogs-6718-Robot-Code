@@ -3,6 +3,7 @@ package frc.team6718.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.team6718.math.LawOfCosines;
 import frc.team6718.robot.MB1003UltrasonicSensor;
 import frc.team6718.robot.RobotMap;
@@ -89,17 +90,21 @@ public class ArmSubsystem extends Subsystem {
         //lowerArmPID.setAbsoluteTolerance(1);
 
         //Set stuff in Shuffleboard
-        upperArm.setName("Upper Arm", "Arm");
-        lowerArm.setName("Lower Arm", "Arm");
-        upperArmPot.setName("Upper Arm Pot", "Arm");
-        lowerArmUSensor.setName("Lower Arm USensor", "Arm");
+        upperArm.setName("Arm", "Upper Arm");
+        lowerArm.setName("Arm", "Lower Arm");
+        upperArmPot.setName("Arm", "Upper Arm Pot");
+        lowerArmUSensor.setName("Arm", "Lower Arm USensor");
         /*
-        upperArmPID.setName("Upper Arm PID", "Arm");
-        lowerArmPID.setName("Lower arm PID", "Arm");
-
-        LiveWindow.add(upperArmPID);
-        LiveWindow.add(lowerArmPID);
+        upperArmPID.setName("Arm", "Upper Arm PID");
+        lowerArmPID.setName("Arm", "Lower arm PID");
         */
+        SmartDashboard.putData(upperArm);
+        SmartDashboard.putData(lowerArm);
+        SmartDashboard.putData(upperArmPot);
+        SmartDashboard.putData(lowerArmUSensor);
+        //SmartDashboard.putData(upperArmPID);
+        //SmartDashboard.putData(lowerArmPID);
+
         disable();
     }
 

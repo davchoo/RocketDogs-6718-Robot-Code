@@ -1,5 +1,10 @@
 package frc.team6718;
 
+import frc.team6718.robot.commands.Command;
+import frc.team6718.robot.commands.CommandGroup;
+import frc.team6718.robot.commands.MoveDistanceCommand;
+import frc.team6718.robot.commands.TurnCommand;
+import frc.team6718.robot.commands.auto.LLAutoCommandGroup;
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Waypoint;
@@ -11,24 +16,32 @@ import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import static jaci.pathfinder.Pathfinder.d2r;
 
-/**
- * Created by davchoo
- * Date: 1/26/2018
- * Time: 9:50 PM
- */
 public class Test extends Application {
+    public Waypoint[] convert(CommandGroup group, double y) {
+        double lastHeading = 90;
+        ArrayList<Waypoint> points = new ArrayList<>();
+        double lX = 0, lY = y;
+        for (Command c : group.commands) {
+            if (c instanceof TurnCommand) {
+                lastHeading += ((TurnCommand) c).getHeading();
+            }else{
+                lX += Math.sin(d2r(lastHeading)) * ((MoveDistanceCommand) c).distance / 12d;
+                lY += Math.cos(d2r(lastHeading)) * ((MoveDistanceCommand) c).distance / 12d;
+                points.add(new Waypoint(lX, lY, lastHeading));
+            }
+        }
+        return points.toArray(new Waypoint[points.size()]);
+    }
+
     @Override
     public void start(Stage primaryStage) {
         //Add waypoints here
         //The heading is in radians so call d2r to change deg to rads
-        Waypoint[] waypoints = new Waypoint[]{
-                new Waypoint(0, 0, d2r(0)),
-                new Waypoint(24, 24, d2r(90)),
-                new Waypoint(48, 48, d2r(0)),
-        };
+        Waypoint[] waypoints = convert(new LLAutoCommandGroup(), 23.34);
         //Configure the settings for Pathfinder
         //TODO Change max_velocity, max_acceleration and max_jerk to correct measurements on the robot
         Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.02, 36, 6, 1);

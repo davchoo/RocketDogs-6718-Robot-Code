@@ -12,7 +12,7 @@ public class TurnCommand extends Command {
 
     /**
      * Turns the robot
-     * @param heading In range 0 - 360 degrees
+     * @param heading The amount to turn in degrees (ccw neg , cw pos)
      */
     public TurnCommand(double heading) {
         super("Turn");
@@ -23,7 +23,7 @@ public class TurnCommand extends Command {
     @Override
     protected void initialize() {
         Robot.driveTrain.enable();
-        Robot.driveTrain.setTargetHeading(heading);
+        Robot.driveTrain.rotateTargetHeading(heading);
     }
 
     @Override

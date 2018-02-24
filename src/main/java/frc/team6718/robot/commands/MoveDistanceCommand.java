@@ -29,7 +29,6 @@ public class MoveDistanceCommand extends Command{
 
     @Override
     protected void end() {
-        Robot.driveTrain.setTargetSpeeds(0, 0); //Stop motors
         Robot.driveTrain.disable();
     }
 

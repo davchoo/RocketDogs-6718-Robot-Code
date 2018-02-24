@@ -6,11 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.team6718.robot.Robot;
 import frc.team6718.robot.RobotMap;
 import frc.team6718.robot.commands.StopMovingCommand;
-import frc.team6718.robot.pid.AvgDistancePIDSource;
-import frc.team6718.robot.pid.EncoderDispPIDSource;
 import frc.team6718.robot.pid.NullPIDOutput;
-import frc.team6718.robot.pid.PIDControllerPIDOutput;
-import jaci.pathfinder.Trajectory;
 
 /**
  * Drive Train Subsystem
@@ -26,10 +22,12 @@ public class DriveTrainSubsystem extends Subsystem {
     private Spark leftA, leftB;
     private Spark rightA, rightB;
     private SpeedControllerGroup leftMotorGroup, rightMotorGroup;
-    private PIDController left, right, rotation, leftDistance, rightDistance;
-    private AvgDistancePIDSource avgDistanceSource;
+    private PIDController left, right, rotation;
     //Units are inches and inches/second
-    public Encoder leftEncoder, rightEncoder;
+    private Encoder leftEncoder, rightEncoder;
+
+    private double leftSpeed, rightSpeed;
+
 
     //TODO check if this many PIDControllers is slowing down the RoboRIO
     public DriveTrainSubsystem() {
@@ -52,45 +50,34 @@ public class DriveTrainSubsystem extends Subsystem {
         leftEncoder.setDistancePerPulse(Math.PI * 6d / 1024d);
         rightEncoder.setDistancePerPulse(Math.PI * 6d / 1024d);
 
-        leftEncoder.setPIDSourceType(PIDSourceType.kRate);
-        rightEncoder.setPIDSourceType(PIDSourceType.kRate);
-
-        avgDistanceSource = new AvgDistancePIDSource(leftEncoder, rightEncoder);
+        leftEncoder.setPIDSourceType(PIDSourceType.kDisplacement);
+        rightEncoder.setPIDSourceType(PIDSourceType.kDisplacement);
 
         //TODO calibrate PID
         left = new PIDController(0, 0, 0, 0, leftEncoder, new NullPIDOutput(), 0.02);
         right = new PIDController(0, 0, 0, 0, rightEncoder, new NullPIDOutput(), 0.02);
         rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope.getPIDSource(), new NullPIDOutput(), 0.02);
-        leftDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(leftEncoder), new PIDControllerPIDOutput(left), 0.02);
-        rightDistance = new PIDController(0, 0, 0, 0, new EncoderDispPIDSource(rightEncoder), new PIDControllerPIDOutput(right), 0.02);
 
         rotation.setInputRange(0, 360);
-        leftDistance.setOutputRange(-MAX_SPEED, MAX_SPEED);
-        rightDistance.setOutputRange(-MAX_SPEED, MAX_SPEED);
 
         rotation.setAbsoluteTolerance(1);
-        leftDistance.setAbsoluteTolerance(1);
-        rightDistance.setAbsoluteTolerance(1);
+        left.setAbsoluteTolerance(1);
+        right.setAbsoluteTolerance(1);
 
         rotation.setContinuous();
 
         //Add to shuffleboard
         leftEncoder.setName("Drive Train", "Left Encoder");
         rightEncoder.setName("Drive Train", "Right Encoder");
-        left.setName("Drive Train", "Left Vel PID");
-        right.setName("Drive Train", "Right Vel PID");
-        leftDistance.setName("Drive Train", "Left Dist PID");
-        rightDistance.setName("Drive Train", "Right Dist PID");
+        left.setName("Drive Train", "Left Dist PID");
+        right.setName("Drive Train", "Right Dist PID");
         rotation.setName("Drive Train", "Rotation PID");
 
         SmartDashboard.putData(leftEncoder);
         SmartDashboard.putData(rightEncoder);
         SmartDashboard.putData(left);
         SmartDashboard.putData(right);
-        SmartDashboard.putData(leftDistance);
-        SmartDashboard.putData(rightDistance);
         SmartDashboard.putData(rotation);
-
 
         //Start disabled for safety
         disable();
@@ -99,13 +86,13 @@ public class DriveTrainSubsystem extends Subsystem {
     /**
      * Sets the target speeds of both motors
      * Equivalent to tankDrive
-     * @param leftSpeed The target speed for the two left motors (in/s)
-     * @param rightSpeed The target speed for the two right motors (in/s)
+     * @param leftSpeed The target speed for the two left motors (-1 to 1)
+     * @param rightSpeed The target speed for the two right motors (-1 to 1)
      */
     public void setTargetSpeeds(double leftSpeed, double rightSpeed) {
         disableDistanceControl();
-        left.setSetpoint(leftSpeed);
-        right.setSetpoint(rightSpeed);
+        this.leftSpeed = leftSpeed;
+        this.rightSpeed = rightSpeed;
     }
 
     /**
@@ -121,10 +108,10 @@ public class DriveTrainSubsystem extends Subsystem {
      * @param d The amount of inches
      */
     public void setTargetDistance(double d) {
-        avgDistanceSource.zero();
+        resetDistance();
         enableDistanceControl();
-        leftDistance.setSetpoint(d);
-        rightDistance.setSetpoint(d);
+        left.setSetpoint(d);
+        left.setSetpoint(d);
     }
 
     /**
@@ -152,7 +139,7 @@ public class DriveTrainSubsystem extends Subsystem {
      * @return if both left and right distance PIDControllers are in tolerances
      */
     public boolean isDistanceOnTarget() {
-        return leftDistance.onTarget() && rightDistance.onTarget();
+        return left.onTarget() && right.onTarget();
     }
 
     /**
@@ -160,67 +147,74 @@ public class DriveTrainSubsystem extends Subsystem {
      * @return
      */
     public double getDistanceCovered() {
-        return avgDistanceSource.pidGet();
+        return (leftEncoder.getDistance() + rightEncoder.getDistance()) / 2d;
     }
 
     /**
      * Reset both encoders to 0
      */
     public void resetDistance() {
-        avgDistanceSource.zero();
+        leftEncoder.reset();
+        rightEncoder.reset();
     }
 
     /**
-     * Enable the left and right velocity PIDs and heading PID.
-     * Also disables left and right distance PIDs
+     * Enables heading PID and disables left and right distance PIDs
      */
     public void enable() {
-        left.enable();
-        right.enable();
         rotation.enable();
         disableDistanceControl();
     }
 
     /**
-     * Disable all PID controllers and reset the setpoints to 0
+     * Disable all heading PID and distance PIDs
      */
     public void disable() {
-        left.setSetpoint(0);
-        right.setSetpoint(0);
-        left.reset();
-        right.reset();
+        leftSpeed = 0;
+        rightSpeed = 0;
         rotation.disable();
         disableDistanceControl();
+    }
+
+    /**
+     * Zero the distances of both encoders
+     */
+    public void zero() {
+        leftEncoder.reset();
+        rightEncoder.reset();
     }
 
     /**
      * Enable the left and right distance PID controllers
      */
     public void enableDistanceControl() {
-        leftDistance.enable();
-        rightDistance.enable();
+        left.enable();
+        right.enable();
     }
 
     /**
      * Disable the left and right distance PID controllers
      */
     public void disableDistanceControl() {
-        leftDistance.setSetpoint(0);
-        rightDistance.setSetpoint(0);
+        left.setSetpoint(0);
+        right.setSetpoint(0);
         resetDistance();
-        leftDistance.reset();
-        rightDistance.reset();
+        left.reset();
+        right.reset();
     }
 
     @Override
     public void periodic() {
         double rotationPID = rotation.get();
-        double leftPID = left.get() - rotationPID;
-        double rightPID = right.get() + rotationPID;
-        double max = Math.max(Math.max(Math.abs(leftPID), Math.abs(rightPID)), 1);
+        double leftPID = leftSpeed + left.get() - rotationPID;
+        double rightPID = rightSpeed + right.get() + rotationPID;
+
         //Normalize values to be in the range -1 to 1
+        double max = Math.max(Math.max(Math.abs(leftPID), Math.abs(rightPID)), 1);
         leftPID /= max;
         rightPID /= max;
+
+        //Write
         leftMotorGroup.pidWrite(leftPID);
         rightMotorGroup.pidWrite(rightPID);
     }
@@ -228,18 +222,5 @@ public class DriveTrainSubsystem extends Subsystem {
     @Override
     protected void initDefaultCommand() {
         setDefaultCommand(new StopMovingCommand());
-    }
-
-    /**
-     * Get the config for Pathfinder
-     * @return A Trajectory Config
-     */
-    public Trajectory.Config getConfig() {
-        return new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, TimedRobot.DEFAULT_PERIOD, MAX_SPEED, MAX_ACCEL, MAX_JERK);
-    }
-
-    public void test() {
-        leftMotorGroup.set(1);
-        rightMotorGroup.set(1);
     }
 }

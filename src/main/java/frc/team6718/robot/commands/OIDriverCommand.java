@@ -16,6 +16,15 @@ public class OIDriverCommand extends Command {
     protected void execute() { //TODO check if we should square xRot and if its sensitive enough
         double speed = Math.pow(Robot.oi.joystick.getY(), 2);
         double xRot = Robot.oi.joystick.getX();
+
+        if (Robot.oi.joystick.getRawButton(Robot.oi.disableMovement)) {
+            speed = 0;
+        }
+
+        if (Robot.oi.joystick.getRawButton(Robot.oi.disableRotation)) {
+            xRot = 0;
+        }
+
         Robot.driveTrain.setTargetSpeeds(speed, speed);
         Robot.driveTrain.rotateTargetHeading(xRot);
     }

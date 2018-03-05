@@ -7,8 +7,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.team6718.robot.commands.OIDriverCommand;
-import frc.team6718.robot.commands.auto.LLAutoCommandGroup;
-import frc.team6718.robot.commands.auto.RRAutoCommandGroup;
+import frc.team6718.robot.commands.auto.BadAutoCommand;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 import frc.team6718.robot.subsystems.GyroScopeSubsystem;
 
@@ -54,11 +53,7 @@ public class Robot extends TimedRobot {
             scale = getOwnedSide(GameFeature.SCALE);
             switchFar = getOwnedSide(GameFeature.SWITCH_FAR);
         }else{
-            if (switchNear == OwnedSide.LEFT) {
-                autonomousCommand = new LLAutoCommandGroup();
-            }else if(switchNear == OwnedSide.RIGHT){
-                autonomousCommand = new RRAutoCommandGroup();
-            }
+            autonomousCommand = new BadAutoCommand();
             if (autonomousCommand != null && !hasRunAutonomousCommand) {
                 hasRunAutonomousCommand = true;
                 Scheduler.getInstance().add(autonomousCommand);
@@ -108,14 +103,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         Scheduler.getInstance().run();
-    }
-
-    /**
-     * This function is called periodically during test mode
-     */
-    @Override
-    public void testPeriodic() {
-        driveTrain.test();
     }
 }
 

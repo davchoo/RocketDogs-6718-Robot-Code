@@ -9,12 +9,14 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.team6718.robot.commands.OIDriverCommand;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 import frc.team6718.robot.subsystems.GyroScopeSubsystem;
+import frc.team6718.robot.subsystems.WinchSubsystem;
 
 public class Robot extends TimedRobot {
     public static OI oi;
     public static DriveTrainSubsystem driveTrain;
     public static GyroScopeSubsystem gyroscope;
     public static UsbCamera camera;
+    public static WinchSubsystem winch;
 
     private Command autonomousCommand;
 
@@ -22,6 +24,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         gyroscope = new GyroScopeSubsystem();
         driveTrain = new DriveTrainSubsystem();
+        winch = new WinchSubsystem();
         oi = new OI();
         //Create and start capturing video from the camera
         camera = CameraServer.getInstance().startAutomaticCapture();

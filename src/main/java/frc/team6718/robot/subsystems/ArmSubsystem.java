@@ -30,6 +30,9 @@ public class ArmSubsystem extends Subsystem {
     //PID controllers
     private PIDController upperArmPID, lowerArmPID;
 
+    private boolean disabled = true, lastState = true;
+    private double lastLowerArm = 0;
+
     public static final double LOWER_ARM_LENGTH = 0; //TODO Find arm lengths
     public static final double UPPER_ARM_LENGTH = 0;
     public static final double LOWER_ARM_BASE_FRAME = 0;
@@ -126,7 +129,13 @@ public class ArmSubsystem extends Subsystem {
     */
     public double getLowerArmAngle() {
         double lengthDart = lowerArmUSensor.getDistance();
-        return LawOfCosines.getAngleA(lengthDart + TDART_RODEND, BARM_BDART, BARM_TDART) + OFFSET_ANGLE;
+        double angle = LawOfCosines.getAngleA(lengthDart + TDART_RODEND, BARM_BDART, BARM_TDART) + OFFSET_ANGLE;
+        if (lengthDart > 31) {
+            lastLowerArm = angle;
+        }else{
+            return lastLowerArm;
+        }
+        return angle;
     }
 
     public boolean isInPerimeter() {
@@ -157,6 +166,17 @@ public class ArmSubsystem extends Subsystem {
         return true;
     }
 
+    @Override
+    public void periodic() {
+        if (lowerArmUSensor.getDistance() < 31 && lastState) { //Lower arm sensor too close
+            lastState = false;
+            //lowerArmPID.disable();
+        }else if (!disabled && !lastState) {
+            lastState = true;
+            //lowerArmPID.enable();
+        }
+    }
+
     public boolean isLowerArmOnTarget() {
         return lowerArmPID.onTarget();
     }
@@ -174,11 +194,13 @@ public class ArmSubsystem extends Subsystem {
     }
 
     public void disable() {
-//        lowerArmPID.disable();
-//        upperArmPID.disable();
+        disabled = true;
+//      lowerArmPID.disable();
+//      upperArmPID.disable();
     }
 
     public void enable() {
+        disabled = false;
         lowerArmPID.enable();
         upperArmPID.enable();
     }

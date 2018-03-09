@@ -6,7 +6,7 @@ import frc.team6718.robot.Robot;
 public class CloseGripperCommand extends TimedCommand {
 
     public CloseGripperCommand() {
-        super("Close Gripper", 2); //TODO determine how long to
+        super("Close Gripper", 2); //TODO determine how long to close gripper
         requires(Robot.gripper);
     }
 

@@ -21,14 +21,10 @@ public class MB1003UltrasonicSensor extends SendableBase {
         return input.getVoltage() / 4.885 * 5000;
     }
 
-    private void ignore(double a) {
-
-    }
-
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addDoubleProperty("Distance", this::getDistance, this::ignore);
-        builder.addDoubleProperty("Voltage", input::getVoltage, this::ignore);
+        builder.addDoubleProperty("Distance", this::getDistance, null);
+        builder.addDoubleProperty("Voltage", input::getVoltage, null);
     }
 
 }

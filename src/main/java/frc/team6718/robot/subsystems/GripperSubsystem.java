@@ -4,6 +4,7 @@ package frc.team6718.robot.subsystems;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.team6718.robot.RobotMap;
 
 /**
@@ -26,6 +27,9 @@ public class GripperSubsystem extends Subsystem {
 
         gripper.setName("Gripper", "Motor");
         limitSwitch.setName("Gripper", "Limit switch");
+
+        SmartDashboard.putData(gripper);
+        SmartDashboard.putData(limitSwitch);
     }
 
     public void set(double speed) {
@@ -36,14 +40,14 @@ public class GripperSubsystem extends Subsystem {
         return speed;
     }
 
-    public boolean isFullyOpenned() {
+    public boolean isFullyOpened() {
         return limitSwitch.get();
     }
 
     @Override
     public void periodic() {
         double aSpeed = speed;
-        if (speed > 0 && limitSwitch.get()) { //Gripper openning and touches limit switch
+        if (speed > 0 && limitSwitch.get()) { //Gripper opening and touches limit switch
             aSpeed = 0;
         }
         gripper.set(aSpeed);

@@ -3,13 +3,14 @@ package frc.team6718.robot;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class OI {
-    public Joystick joystick;
+    public Joystick drive, arm;
 
     //Buttons
     public int disableRotation, disableMovement;
 
     public OI() {
-        joystick = new Joystick(0);
+        drive = new Joystick(0);
+        arm = new Joystick(1);
         disableRotation = 6;
         disableMovement = 8;
     }

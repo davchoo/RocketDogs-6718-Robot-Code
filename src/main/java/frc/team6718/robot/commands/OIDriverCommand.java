@@ -14,14 +14,14 @@ public class OIDriverCommand extends Command {
 
     @Override
     protected void execute() { //TODO check if we should square xRot and if its sensitive enough
-        double speed = Math.pow(Robot.oi.joystick.getY(), 2);
-        double xRot = Robot.oi.joystick.getX();
+        double speed = Math.pow(Robot.oi.drive.getY(), 2);
+        double xRot = Robot.oi.drive.getX();
 
-        if (Robot.oi.joystick.getRawButton(Robot.oi.disableMovement)) {
+        if (Robot.oi.drive.getRawButton(Robot.oi.disableMovement)) {
             speed = 0;
         }
 
-        if (Robot.oi.joystick.getRawButton(Robot.oi.disableRotation)) {
+        if (Robot.oi.drive.getRawButton(Robot.oi.disableRotation)) {
             xRot = 0;
         }
 

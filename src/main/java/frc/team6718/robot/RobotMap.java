@@ -30,6 +30,9 @@ public class RobotMap {
     //Gripper motor (PWM pins)
     public static final int GRIPPER_MOTOR = 6;
 
+    //Gripper limit switch (DIO pins)
+    public static final int GRIPPER_LIMIT_SWITCH = 4;
+
     //Winch spark motor controllers (PWM pins)
     public static final int WINCH_MOTOR = 4;
 }

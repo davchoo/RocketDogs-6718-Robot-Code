@@ -3,7 +3,7 @@ package frc.team6718.robot.commands;
 import edu.wpi.first.wpilibj.command.TimedCommand;
 import frc.team6718.robot.Robot;
 
-//TODO determine how to keep the gripper open
+//TODO Wire limit switch to RIO instead
 public class OpenGripperCommand extends TimedCommand {
     public OpenGripperCommand() {
         super("Open Gripper", 5); //TODO determine time the gripper takes to open

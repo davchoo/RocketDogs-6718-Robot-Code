@@ -29,4 +29,7 @@ public class RobotMap {
 
     //Gripper motor (PWM pins)
     public static final int GRIPPER_MOTOR = 6;
+
+    //Winch spark motor controllers (PWM pins)
+    public static final int WINCH_MOTOR = 4;
 }

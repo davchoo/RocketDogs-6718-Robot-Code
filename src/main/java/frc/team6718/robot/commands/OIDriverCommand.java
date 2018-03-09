@@ -11,8 +11,8 @@ public class OIDriverCommand extends Command {
 
     @Override
     protected void execute() {
-        double speed = Robot.oi.joystick.getY();
-        double xRot = Robot.oi.joystick.getX();
+        double speed = Robot.oi.drive.getY();
+        double xRot = Robot.oi.drive.getX();
         Robot.driveTrain.drive.arcadeDrive(speed, xRot);
     }
 

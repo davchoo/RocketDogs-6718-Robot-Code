@@ -3,8 +3,9 @@ package frc.team6718.robot;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class OI {
-    public Joystick joystick;
+    public Joystick drive, arm;
     public OI() {
-        joystick = new Joystick(0);
+        drive = new Joystick(0);
+        arm = new Joystick(1);
     }
 }

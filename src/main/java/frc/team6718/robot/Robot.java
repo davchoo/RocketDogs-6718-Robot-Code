@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.team6718.robot.commands.OIDriverCommand;
-import frc.team6718.robot.commands.auto.BadAutoCommand;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 import frc.team6718.robot.subsystems.GyroScopeSubsystem;
 import frc.team6718.robot.subsystems.WinchSubsystem;
@@ -25,9 +24,9 @@ public class Robot extends TimedRobot {
     private Command autonomousCommand;
     private boolean hasRunAutonomousCommand = false;
 
-    private OwnedSide switchNear = OwnedSide.UNKNOWN;
-    private OwnedSide scale = OwnedSide.UNKNOWN;
-    private OwnedSide switchFar = OwnedSide.UNKNOWN;
+    public static OwnedSide switchNear = OwnedSide.UNKNOWN;
+    public static OwnedSide scale = OwnedSide.UNKNOWN;
+    public static OwnedSide switchFar = OwnedSide.UNKNOWN;
 
     @Override
     public void robotInit() {
@@ -56,7 +55,6 @@ public class Robot extends TimedRobot {
             scale = getOwnedSide(GameFeature.SCALE);
             switchFar = getOwnedSide(GameFeature.SWITCH_FAR);
         }else{
-            autonomousCommand = new BadAutoCommand();
             if (autonomousCommand != null && !hasRunAutonomousCommand) {
                 hasRunAutonomousCommand = true;
                 Scheduler.getInstance().add(autonomousCommand);

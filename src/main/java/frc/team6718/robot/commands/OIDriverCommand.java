@@ -30,9 +30,9 @@ public class OIDriverCommand extends Command {
         Robot.oi.arm.setRumble(GenericHID.RumbleType.kRightRumble, rumbleRight);
 
         //Gripper
-        if (Robot.oi.arm.getBumper(GenericHID.Hand.kLeft)) {
+        if (Robot.oi.arm.getTriggerAxis(GenericHID.Hand.kLeft) > 0.5) {
             Robot.gripper.set(-1);
-        } else if (Robot.oi.arm.getBumper(GenericHID.Hand.kRight)) {
+        } else if (Robot.oi.arm.getTriggerAxis(GenericHID.Hand.kRight) > 0.5) {
             Robot.gripper.set(1);
         }else{
             Robot.gripper.set(0);

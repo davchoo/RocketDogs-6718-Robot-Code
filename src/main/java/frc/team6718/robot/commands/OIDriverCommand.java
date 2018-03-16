@@ -1,5 +1,6 @@
 package frc.team6718.robot.commands;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.team6718.robot.OI;
 import frc.team6718.robot.Robot;
@@ -19,19 +20,16 @@ public class OIDriverCommand extends Command {
         Robot.driveTrain.drive.arcadeDrive(speed, xRot);
 
         //Arm
-        double armJoystick = Robot.oi.arm.getY();
-        boolean armTrigger = Robot.oi.arm.getTrigger(); //TODO Pressed?
-
-        double lowerMovement = armTrigger ? 0 : armJoystick;
-        double upperMovement = armTrigger ? armJoystick : 0;
+        double lowerMovement = Robot.oi.arm.getY(GenericHID.Hand.kLeft);
+        double upperMovement = Robot.oi.arm.getY(GenericHID.Hand.kRight);
 
         Robot.arm.setLowerArmAngle(lowerMovement);
         Robot.arm.setUpperArmAngle(upperMovement);
 
         //Gripper
-        if (Robot.oi.arm.getRawButton(OI.CLOSE_GRIPPER)) {
+        if (Robot.oi.arm.getBumper(GenericHID.Hand.kLeft)) {
             Robot.gripper.set(-1);
-        } else if (Robot.oi.arm.getRawButton(OI.OPEN_GRIPPER)) {
+        } else if (Robot.oi.arm.getBumper(GenericHID.Hand.kRight)) {
             Robot.gripper.set(1);
         }else{
             Robot.gripper.set(0);

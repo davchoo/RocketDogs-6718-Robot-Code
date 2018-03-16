@@ -8,6 +8,6 @@ public class MAutoCommand extends CommandGroup{
 
     public MAutoCommand() {
         super("M Auto");
-        addSequential(new MoveDistanceCommand(95 * 12));
+        addSequential(new MoveDistanceCommand(95));
     }
 }

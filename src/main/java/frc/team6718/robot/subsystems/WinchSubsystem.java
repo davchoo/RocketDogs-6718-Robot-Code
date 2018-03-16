@@ -19,6 +19,9 @@ public class WinchSubsystem extends Subsystem {
     }
 
     public void set(double speed) {
+        if (speed < 0) {
+            return; //Prevent from moving backwards
+        }
         winch.set(speed);
     }
 }

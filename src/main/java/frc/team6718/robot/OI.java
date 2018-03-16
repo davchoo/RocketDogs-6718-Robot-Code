@@ -5,13 +5,14 @@ import edu.wpi.first.wpilibj.Joystick;
 public class OI {
     public Joystick drive, arm;
 
-    //Buttons
-    public int disableRotation, disableMovement;
+    public static final int OPEN_GRIPPER = 5;
+    public static final int CLOSE_GRIPPER = 6;
+
+    public static final int DISABLE_ROTATION = 6;
+    public static final int DISABLE_MOVEMENT = 8;
 
     public OI() {
         drive = new Joystick(0);
         arm = new Joystick(1);
-        disableRotation = 6;
-        disableMovement = 8;
     }
 }

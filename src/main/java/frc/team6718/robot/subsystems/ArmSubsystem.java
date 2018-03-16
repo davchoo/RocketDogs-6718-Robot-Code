@@ -33,9 +33,9 @@ public class ArmSubsystem extends Subsystem {
     private boolean disabled = true, lastState = true;
     private double lastLowerArm = 0;
 
-    public static final double LOWER_ARM_LENGTH = 0; //TODO Find arm lengths
-    public static final double UPPER_ARM_LENGTH = 0;
-    public static final double LOWER_ARM_BASE_FRAME = 0;
+    public static final double LOWER_ARM_LENGTH = 43;
+    public static final double UPPER_ARM_LENGTH = 44.5;
+    public static final double LOWER_ARM_BASE_FRAME = 24;
 
     private final Logger logger = Logger.getLogger("Arm");
 
@@ -120,9 +120,9 @@ public class ArmSubsystem extends Subsystem {
         return upperArmPot.get();
     }
 
-    private static final double BARM_BDART = 0; //TODO Find lengths of arm
-    private static final double BARM_TDART = 0;
-    private static final double TDART_RODEND = 0;
+    private static final double BARM_BDART = 10.75;
+    private static final double BARM_TDART = 24;
+    private static final double TDART_RODEND = 2 + 2.5;
     private static final double OFFSET_ANGLE = 0;
     /**
         Law of cosines :O who said people don't need math

@@ -23,8 +23,11 @@ public class OIDriverCommand extends Command {
         double lowerMovement = Robot.oi.arm.getY(GenericHID.Hand.kLeft);
         double upperMovement = Robot.oi.arm.getY(GenericHID.Hand.kRight);
 
-        Robot.arm.setLowerArmAngle(lowerMovement);
-        Robot.arm.setUpperArmAngle(upperMovement);
+        int rumbleLeft = Robot.arm.setLowerArmAngle(lowerMovement) ? 0 : 1;
+        int rumbleRight = Robot.arm.setUpperArmAngle(upperMovement) ? 0 : 1;
+
+        Robot.oi.arm.setRumble(GenericHID.RumbleType.kLeftRumble, rumbleLeft);
+        Robot.oi.arm.setRumble(GenericHID.RumbleType.kRightRumble, rumbleRight);
 
         //Gripper
         if (Robot.oi.arm.getBumper(GenericHID.Hand.kLeft)) {

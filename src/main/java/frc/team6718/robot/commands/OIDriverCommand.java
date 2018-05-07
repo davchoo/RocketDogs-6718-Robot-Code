@@ -1,8 +1,10 @@
 package frc.team6718.robot.commands;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.command.Command;
 import frc.team6718.robot.OI;
 import frc.team6718.robot.Robot;
+import frc.team6718.robot.subsystems.ArmSubsystem;
 
 /**
  * Allows the Operator to move the robot with a joystick
@@ -17,8 +19,8 @@ public class OIDriverCommand extends Command {
 
     @Override
     protected void execute() { //TODO check if we should square xRot and if its sensitive enough
-        double speed = Math.pow(Robot.oi.drive.getY(), 2);
-        double xRot = Robot.oi.drive.getX();
+        double speed = -Math.pow(Robot.oi.drive.getY(), 2);
+        double xRot = -Robot.oi.drive.getX();
 
         if (Robot.oi.drive.getRawButton(OI.DISABLE_MOVEMENT)) {
             speed = 0;
@@ -28,27 +30,40 @@ public class OIDriverCommand extends Command {
             xRot = 0;
         }
 
+        if (Robot.oi.drive.getTrigger()) {
+            speed *= 0.5;
+        }
+
         Robot.driveTrain.setTargetSpeeds(speed, speed);
         Robot.driveTrain.rotateTargetHeading(xRot);
 
         //Arm
-        double armJoystick = Robot.oi.arm.getY();
-        boolean armTrigger = Robot.oi.arm.getTrigger(); //TODO Pressed?
 
-        double lowerMovement = armTrigger ? 0 : armJoystick;
-        double upperMovement = armTrigger ? armJoystick : 0;
+        boolean leftTrigger = Robot.oi.arm.getTriggerAxis(GenericHID.Hand.kLeft) > 0.5;
+        boolean rightTrigger = Robot.oi.arm.getTriggerAxis(GenericHID.Hand.kRight) > 0.5;
+
+        double holdingSpeed = rightTrigger ? ArmSubsystem.HOLDING_SPEED : leftTrigger ? 0.21 : 0;
+
+        double lowerMovement = Robot.oi.arm.getY(GenericHID.Hand.kLeft) * -0.75;
+        double upperMovement = Robot.oi.arm.getY(GenericHID.Hand.kRight) * -0.75;
+
+        lowerMovement = Math.copySign(Math.pow(lowerMovement, 2), lowerMovement);
+        upperMovement = Math.copySign(Math.pow(upperMovement, 2), upperMovement);
+
+        upperMovement += holdingSpeed;
 
         Robot.arm.setLowerArmAngle(lowerMovement);
         Robot.arm.setUpperArmAngle(upperMovement);
 
         //Gripper
-        if (Robot.oi.arm.getRawButton(OI.CLOSE_GRIPPER)) {
-            Robot.gripper.set(-1);
-        } else if (Robot.oi.arm.getRawButton(OI.OPEN_GRIPPER)) {
-            Robot.gripper.set(1);
-        }else{
-            Robot.gripper.set(0);
+        double gripperSpeed = 0;
+        if (Robot.oi.arm.getBumper(GenericHID.Hand.kLeft)) {
+            gripperSpeed = 1;
         }
+        if (Robot.oi.arm.getBumper(GenericHID.Hand.kRight)) {
+            gripperSpeed = -1;
+        }
+        Robot.gripper.set(gripperSpeed);
     }
 
     @Override

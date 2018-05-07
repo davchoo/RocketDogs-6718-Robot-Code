@@ -17,7 +17,7 @@ public class OpenGripperCommand extends Command {
 
     @Override
     protected boolean isFinished() {
-        return Robot.gripper.isFullyOpened();
+        return true;
     }
 
     @Override

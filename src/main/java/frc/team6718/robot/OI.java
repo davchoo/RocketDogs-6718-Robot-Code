@@ -7,8 +7,8 @@ public class OI {
     public Joystick drive;
     public XboxController arm;
 
-    public static final int OPEN_GRIPPER = 5;
-    public static final int CLOSE_GRIPPER = 6;
+    public static final int DISABLE_ROTATION = 5;
+    public static final int DISABLE_MOVEMENT = 6;
 
     public OI() {
         drive = new Joystick(0);

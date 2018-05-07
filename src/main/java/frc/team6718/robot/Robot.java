@@ -6,12 +6,12 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import frc.team6718.robot.commands.MoveDistanceCommand;
 import frc.team6718.robot.commands.OIDriverCommand;
 import frc.team6718.robot.subsystems.ArmSubsystem;
 import frc.team6718.robot.subsystems.DriveTrainSubsystem;
 import frc.team6718.robot.subsystems.GripperSubsystem;
 import frc.team6718.robot.subsystems.GyroScopeSubsystem;
-import frc.team6718.robot.subsystems.WinchSubsystem;
 
 public class Robot extends TimedRobot {
     public static OI oi;
@@ -21,7 +21,6 @@ public class Robot extends TimedRobot {
     public static GripperSubsystem gripper;
     public static GyroScopeSubsystem gyroscope;
     public static UsbCamera camera;
-    public static WinchSubsystem winch;
 
     private Command autonomousCommand;
 
@@ -31,7 +30,6 @@ public class Robot extends TimedRobot {
         driveTrain = new DriveTrainSubsystem();
         arm = new ArmSubsystem();
         gripper = new GripperSubsystem();
-        winch = new WinchSubsystem();
         oi = new OI();
         //Create and start capturing video from the camera
         camera = CameraServer.getInstance().startAutomaticCapture();
@@ -74,7 +72,7 @@ public class Robot extends TimedRobot {
          */
 
         // schedule the autonomous command (example)
-        autonomousCommand = null; //TODO add auto command
+        autonomousCommand = new MoveDistanceCommand(120, 0.8);
         if (autonomousCommand != null) {
             Scheduler.getInstance().add(autonomousCommand);
         }

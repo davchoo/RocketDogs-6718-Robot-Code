@@ -1,4 +1,4 @@
-package frc.team6718.vector;
+package frc.team6718.math.vector;
 
 public class Vector3 implements Vector<Vector3> {
     public double x, y, z;

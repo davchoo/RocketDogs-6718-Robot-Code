@@ -1,10 +1,17 @@
 package frc.team6718.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class OI {
-    public Joystick joystick;
+    public Joystick drive;
+    public XboxController arm;
+
+    public static final int DISABLE_ROTATION = 5;
+    public static final int DISABLE_MOVEMENT = 6;
+
     public OI() {
-        joystick = new Joystick(0);
+        drive = new Joystick(0);
+        arm = new XboxController(1);
     }
 }

@@ -1,4 +1,4 @@
-package frc.team6718.vector;
+package frc.team6718.math.vector;
 
 public interface Vector<T extends Vector<T>> {
 

@@ -38,6 +38,7 @@ public class GyroScopeSubsystem extends Subsystem {
     public GyroScopeSubsystem() {
         super("Gyroscope");
         gyroscope = new ADXRS450_Gyro();
+        gyroscope.setSubsystem("Gyroscope");
     }
 
     @Override

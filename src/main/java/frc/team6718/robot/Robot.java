@@ -76,6 +76,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         checkSides();
+        gyroscope.zero(); //When autonomous starts we want to make the direction we're starting in zero
     }
 
     /**

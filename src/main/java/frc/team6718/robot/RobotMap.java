@@ -11,6 +11,9 @@ public class RobotMap {
     public static final int DRIVE_TRAIN_RIGHT_A = 2;
     public static final int DRIVE_TRAIN_RIGHT_B = 3;
 
+    //Pigeon IMU (Can bus id)
+    public static final int PIGEON_IMU = 6;
+
     //Upper Arm motor (PWM pins)
     public static final int ARM_UPPER_MOTOR = 4;
     public static final int ARM_UPPER_MOTOR_2 = 5;

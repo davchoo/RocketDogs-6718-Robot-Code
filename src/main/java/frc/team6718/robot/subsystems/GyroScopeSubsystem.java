@@ -1,44 +1,24 @@
 package frc.team6718.robot.subsystems;
 
+import com.ctre.phoenix.sensors.PigeonIMU;
+
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import frc.team6718.robot.RobotMap;
 
 /**
  * A subsystem that handles the gyroscope heading
  */
 public class GyroScopeSubsystem extends Subsystem {
+    public PigeonIMU pigeonIMU;
 
-    public class GyroscopePIDSource implements PIDSource {
-        private GyroScopeSubsystem gyroScopeSubsystem;
-
-        public GyroscopePIDSource(GyroScopeSubsystem subsystem) {
-            this.gyroScopeSubsystem = subsystem;
-        }
-
-        @Override
-        public void setPIDSourceType(PIDSourceType pidSource) {
-            //Ignore
-        }
-
-        @Override
-        public PIDSourceType getPIDSourceType() {
-            return PIDSourceType.kDisplacement;
-        }
-
-        @Override
-        public double pidGet() {
-            return gyroScopeSubsystem.getHeading();
-        }
-    }
-
-    private ADXRS450_Gyro gyroscope;
+    public static final int TIMEOUT = 20;
 
     public GyroScopeSubsystem() {
         super("Gyroscope");
-        gyroscope = new ADXRS450_Gyro();
-        gyroscope.setSubsystem("Gyroscope");
+        pigeonIMU = new PigeonIMU(RobotMap.PIGEON_IMU);
     }
 
     @Override
@@ -51,18 +31,11 @@ public class GyroScopeSubsystem extends Subsystem {
      * @return a heading in degrees
      */
     public double getHeading() {
-        double heading = gyroscope.getAngle() % 360d;
-        if (heading < 0) {
-            heading += 360;
-        }
-        return heading;
+        return pigeonIMU.getFusedHeading();
     }
 
-    /**
-     * Create a GyroscopePIDSource
-     * @return a GyroscopePIDSource
-     */
-    public GyroscopePIDSource getPIDSource() {
-        return new GyroscopePIDSource(this);
+    public void zero() {
+        pigeonIMU.setYaw(0, TIMEOUT);
+        pigeonIMU.setAccumZAngle(0, TIMEOUT);
     }
 }

@@ -18,6 +18,11 @@ public class OIDriverCommand extends Command {
     }
 
     @Override
+    protected void initialize() {
+        Robot.driveTrain.disableAvgDistance();
+    }
+
+    @Override
     protected void execute() { //TODO check if we should square xRot and if its sensitive enough
         double speed = -Math.pow(Robot.oi.drive.getY(), 2);
         double xRot = -Robot.oi.drive.getX();
@@ -34,7 +39,7 @@ public class OIDriverCommand extends Command {
             speed *= 0.5;
         }
 
-        Robot.driveTrain.setTargetSpeeds(speed, speed);
+        Robot.driveTrain.setTargetSpeed(speed);
         Robot.driveTrain.rotateTargetHeading(xRot);
 
         //Arm

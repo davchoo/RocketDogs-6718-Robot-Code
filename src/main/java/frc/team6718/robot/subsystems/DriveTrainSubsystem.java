@@ -1,39 +1,27 @@
 package frc.team6718.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import edu.wpi.first.wpilibj.PIDController;
+import com.ctre.phoenix.sensors.PigeonIMU_StatusFrame;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.team6718.robot.Robot;
 import frc.team6718.robot.RobotMap;
 import frc.team6718.robot.commands.StopMovingCommand;
-import frc.team6718.robot.pid.NullPIDOutput;
 import jaci.pathfinder.Trajectory;
+
+import static frc.team6718.robot.subsystems.DriveTrainConstants.*;
 
 /**
  * Drive Train Subsystem
- * Uses PIDControllers to control the speed of the 2 sides and 1
- * to make sure the robot goes straight
+ * TLDR: Talons are complicated
  */
 public class DriveTrainSubsystem extends Subsystem {
-    public static final double MAX_SPEED = 126.6; //TODO find max speed
-    public static final double MAX_ACCEL = 10; //TODO find max acceleration
-    public static final double MAX_JERK = 2; //TODO find max jerk
-    public static final double TRACK_WIDTH = 23;
-    public static final double MAX_TOLERANCE = 0.5; //0.5 degrees or 0.5 sensor units(rounds to 1)
-
     //A of each side is master
     private TalonSRX leftA, leftB;
     private TalonSRX rightA, rightB;
-    private PIDController rotation;
     //Units 1 = 1/4096 of a rotation
 
-    private boolean disabled = false;
-
-    //TODO check if this many PIDControllers is slowing down the RoboRIO
     public DriveTrainSubsystem() {
         super("Drive Train");
 
@@ -43,76 +31,117 @@ public class DriveTrainSubsystem extends Subsystem {
         rightA = new TalonSRX(RobotMap.DRIVE_TRAIN_RIGHT_A);
         rightB = new TalonSRX(RobotMap.DRIVE_TRAIN_RIGHT_B);
 
-        //TODO determine if we want to continue moving after stopping the motors
+        //Start disabled for safety
+        disable();
+
+        //Configure Neutral Mode
         leftA.setNeutralMode(NeutralMode.Brake);
         leftB.setNeutralMode(NeutralMode.Brake);
 
         rightA.setNeutralMode(NeutralMode.Brake);
         rightB.setNeutralMode(NeutralMode.Brake);
 
+        //LeftB and RightB have to follow because they are mechanically linked
         leftB.follow(leftA);
         rightB.follow(rightA);
 
-        leftA.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
-        rightA.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
-        //TODO check if we need to reverse the encoders
-        /*
+        //Configure the sensors
+        leftA.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, PID_PRIMARY, TIMEOUT);
+
+        rightA.configRemoteFeedbackFilter(RobotMap.DRIVE_TRAIN_LEFT_A, RemoteSensorSource.TalonSRX_SelectedSensor, 0, TIMEOUT);
+        rightA.configRemoteFeedbackFilter(RobotMap.PIGEON_IMU, RemoteSensorSource.Pigeon_Yaw, 1, TIMEOUT);
+
+        rightA.configSensorTerm(SensorTerm.Sum0, FeedbackDevice.RemoteSensor0, TIMEOUT);
+        rightA.configSensorTerm(SensorTerm.Sum1, FeedbackDevice.QuadEncoder, TIMEOUT);
+
+        rightA.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY, TIMEOUT); //Sum of the distances from both encoders
+        rightA.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY, TIMEOUT); //We want the mean distance traveled
+
+        rightA.configSelectedFeedbackSensor(FeedbackDevice.RemoteSensor1, PID_HEADING, TIMEOUT); //Pigeon yaw
+        rightA.configSelectedFeedbackCoefficient(TURN_UNITS_PER_ROTATION / PIGEON_UNITS_PER_ROTATION, PID_HEADING, TIMEOUT);
+
+        //Configure Status Frame Periods
+        rightA.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 20, TIMEOUT);
+        rightA.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 20, TIMEOUT);
+        rightA.setStatusFramePeriod(StatusFrameEnhanced.Status_14_Turn_PIDF1, 20, TIMEOUT);
+        Robot.gyroscope.pigeonIMU.setStatusFramePeriod(PigeonIMU_StatusFrame.CondStatus_9_SixDeg_YPR , 5, TIMEOUT);
+
+        //Configure neutral deadband
+        leftA.configNeutralDeadband(DEADBAND, TIMEOUT);
+        leftB.configNeutralDeadband(DEADBAND, TIMEOUT); //May be unnecessary
+
+        rightA.configNeutralDeadband(DEADBAND, TIMEOUT);
+        rightB.configNeutralDeadband(DEADBAND, TIMEOUT);
+
+        //Configure peak output
+        leftA.configPeakOutputForward(1.0, TIMEOUT);
+        leftA.configPeakOutputReverse(-1.0, TIMEOUT);
+        leftB.configPeakOutputForward(1.0, TIMEOUT);
+        leftB.configPeakOutputReverse(-1.0, TIMEOUT);
+
+        rightA.configPeakOutputForward(1.0, TIMEOUT);
+        rightA.configPeakOutputReverse(-1.0, TIMEOUT);
+        rightB.configPeakOutputForward(1.0, TIMEOUT);
+        rightB.configPeakOutputReverse(-1.0, TIMEOUT);
+
+        //TODO check if we need to reverse the encoders/motors
+        leftA.setInverted(false);
         leftA.setSensorPhase(false);
+
+        rightA.setInverted(false);
         rightA.setSensorPhase(false);
-        */
+
         //TODO calibrate PID
+        //Heading
+        rightA.config_kP(SLOT_HEADING, 0, TIMEOUT);
+        rightA.config_kI(SLOT_HEADING, 0, TIMEOUT);
+        rightA.config_kD(SLOT_HEADING, 0, TIMEOUT);
+        rightA.config_kF(SLOT_HEADING, 0, TIMEOUT);
+        rightA.config_IntegralZone(SLOT_HEADING, 0, TIMEOUT);
+        rightA.configClosedLoopPeakOutput(SLOT_HEADING, 0, TIMEOUT);
+        rightA.configAllowableClosedloopError(SLOT_HEADING, HEADING_TOLERANCE, TIMEOUT);
+
+        //Distance
+        rightA.config_kP(SLOT_DISTANCE, 0, TIMEOUT);
+        rightA.config_kI(SLOT_DISTANCE, 0, TIMEOUT);
+        rightA.config_kD(SLOT_DISTANCE, 0, TIMEOUT);
+        rightA.config_kF(SLOT_DISTANCE, 0, TIMEOUT);
+        rightA.config_IntegralZone(SLOT_DISTANCE, 0, TIMEOUT);
+        rightA.configClosedLoopPeakOutput(SLOT_DISTANCE, 0, TIMEOUT);
+        rightA.configAllowableClosedloopError(SLOT_DISTANCE, DISTANCE_TOLERANCE, TIMEOUT);
+
         //Velocity
-        leftA.selectProfileSlot(0,0);
-        leftA.config_kP(0, 0,0);
-        leftA.config_kI(0, 0,0);
-        leftA.config_kD(0, 0,0);
-        leftA.config_kF(0, 1d / convertI2U(MAX_SPEED),0);
+        rightA.config_kP(SLOT_VELOCITY, 0, TIMEOUT);
+        rightA.config_kI(SLOT_VELOCITY, 0, TIMEOUT);
+        rightA.config_kD(SLOT_VELOCITY, 0, TIMEOUT);
+        rightA.config_kF(SLOT_VELOCITY, 1.0 / convertI2EU(MAX_SPEED) * 0.1, TIMEOUT);
+        rightA.config_IntegralZone(SLOT_VELOCITY, 0, TIMEOUT);
+        rightA.configClosedLoopPeakOutput(SLOT_VELOCITY, 0, TIMEOUT);
+        rightA.configAllowableClosedloopError(SLOT_VELOCITY, VELOCITY_TOLERANCE, TIMEOUT);
 
-        rightA.selectProfileSlot(0,0);
-        rightA.config_kP(0, 0,0);
-        rightA.config_kI(0, 0,0);
-        rightA.config_kD(0, 0,0);
-        rightA.config_kF(0, 1d / convertI2U(MAX_SPEED),0);
-        //TODO find out if the slotIdx is the profile slot
-        //Distance (Motion Magic)
-        leftA.selectProfileSlot(1,0);
-        leftA.config_kP(1, 0,0);
-        leftA.config_kI(1, 0,0);
-        leftA.config_kD(1, 0,0);
-        leftA.config_kF(1, 0,0);
-        leftA.configMotionCruiseVelocity(convertI2U(MAX_SPEED * 0.1), 0);
-        leftA.configMotionAcceleration(convertI2U(MAX_ACCEL * 0.1), 0);
+        //Configure Motion Magic
+        rightA.configMotionAcceleration((int)(convertI2EU(MAX_ACCEL) * 0.1), TIMEOUT);
+        rightA.configMotionCruiseVelocity((int)(convertI2EU(MAX_SPEED) * 0.1), TIMEOUT);
 
-        rightA.selectProfileSlot(1,0);
-        rightA.config_kP(1, 0,0);
-        rightA.config_kI(1, 0,0);
-        rightA.config_kD(1, 0,0);
-        rightA.config_kF(1, 0,0);
-        rightA.configMotionCruiseVelocity(convertI2U(MAX_SPEED * 0.1), 0);
-        rightA.configMotionAcceleration(convertI2U(MAX_ACCEL * 0.1), 0);
-
-        rotation = new PIDController(0, 0, 0, 0, Robot.gyroscope.getPIDSource(), new NullPIDOutput(), 0.02);
-        rotation.setInputRange(0, 360);
-
-        rotation.setAbsoluteTolerance(MAX_TOLERANCE);
-
-        rotation.setContinuous();
-
-        //Start disabled for safety
-        disable();
+        /*
+          false -> rightA = PID[0] + PID[1] leftA = PID[0] - PID[1]
+          true -> rightA = PID[0] - PID[1] leftA = PID[0] + PID[1]
+         */
+        rightA.configAuxPIDPolarity(false, TIMEOUT);
     }
 
     /**
-     * Sets the target speeds of both motors
-     * Equivalent to tankDrive
-     * @param leftSpeed The target speed for the two left motors (sensor units/s)
-     * @param rightSpeed The target speed for the two right motors (sensor units/s)
+     * Sets the target speed
+     * @param speed The target speed to drive at (in/s)
      */
-    public void setTargetSpeeds(double leftSpeed, double rightSpeed) {
-        leftA.selectProfileSlot(0, 0);
-        rightA.selectProfileSlot(0, 0);
-        leftA.set(ControlMode.Velocity, leftSpeed);
-        rightA.set(ControlMode.Velocity, rightSpeed);
+    public void setTargetSpeed(double speed) {
+        //Select the correct profile
+        rightA.selectProfileSlot(SLOT_VELOCITY, PID_PRIMARY);
+        rightA.selectProfileSlot(SLOT_HEADING, PID_HEADING);
+
+        double heading = rightA.getSelectedSensorPosition(1);
+        rightA.set(ControlMode.Velocity, convertI2EU(speed) * 0.100, DemandType.AuxPID, heading);
+        leftA.follow(rightA, FollowerType.AuxOutput1);
     }
 
     /**
@@ -120,18 +149,25 @@ public class DriveTrainSubsystem extends Subsystem {
      * @param angle The direction in degrees
      */
     public void setTargetHeading(double angle) {
-        rotation.setSetpoint(angle);
+        rightA.selectProfileSlot(SLOT_HEADING, PID_HEADING);
+
+        rightA.set(ControlMode.PercentOutput, 0, DemandType.AuxPID, angle * 10);
+        leftA.follow(rightA, FollowerType.AuxOutput1);
     }
 
     /**
-     * Drive the robot forward
-     * @param d The amount of sensor units
+     * Drive the robot forward at the heading currently measured
+     * Note this is absolute distance and you need to reset the distance sensors
+     * @param distance The amount of sensor units
      */
-    public void setTargetDistance(double d) {
-        leftA.selectProfileSlot(1, 0);
-        rightA.selectProfileSlot(1, 0);
-        leftA.set(ControlMode.MotionMagic, d);
-        rightA.set(ControlMode.MotionMagic, d);
+    public void setTargetDistance(double distance) {
+        //Select the correct profile
+        rightA.selectProfileSlot(SLOT_DISTANCE, PID_PRIMARY);
+        rightA.selectProfileSlot(SLOT_HEADING, PID_HEADING);
+
+        double heading = rightA.getSelectedSensorPosition(1);
+        rightA.set(ControlMode.Position, distance, DemandType.AuxPID, heading);
+        leftA.follow(rightA, FollowerType.AuxOutput1);
     }
 
     /**
@@ -139,73 +175,64 @@ public class DriveTrainSubsystem extends Subsystem {
      * @param angle the angle delta in degrees
      */
     public void rotateTargetHeading(double angle) {
-        double newRotation = (rotation.getSetpoint() + angle) % 360d;
-        if (newRotation < 0) {
-            newRotation += 360;
-        }
-        rotation.setSetpoint(newRotation);
+        setTargetHeading(rightA.getSelectedSensorPosition(1) * 0.1 + angle);
     }
 
     /**
-     * Check if the heading is within tolerances
-     * @return if heading is within tolerances
+     * Check if the heading is within tolerance
+     * @return if heading is within tolerance
      */
     public boolean isHeadingOnTarget() {
-        return rotation.onTarget();
+        return rightA.getClosedLoopError(PID_HEADING) <= HEADING_TOLERANCE;
     }
 
     /**
-     * Check if the distance is within tolerances
-     * @return if both left and right distance PIDControllers are in tolerances
+     * Check if the distance is within tolerance
+     * @return if the distance is within tolerance
      */
     public boolean isDistanceOnTarget() {
-        return leftA.getClosedLoopError(0) < MAX_TOLERANCE && rightA.getClosedLoopError(0) < MAX_TOLERANCE;
+        return rightA.getClosedLoopError(PID_PRIMARY) < DISTANCE_TOLERANCE;
     }
 
     /**
      * Reset both encoders to 0
      */
     public void resetDistance() {
-        leftA.setSelectedSensorPosition(0, 0, 0);
-        rightA.setSelectedSensorPosition(0, 0, 0);
+        leftA.getSensorCollection().setQuadraturePosition(0, TIMEOUT);
+        rightA.getSensorCollection().setQuadraturePosition(0, TIMEOUT);
     }
 
     /**
-     * Enables the heading PID.
+     * Enable distance(and thus velocity) averaging
+     * Use averaging when you're not adjusting heading while moving using velocity/distance targets
      */
-    public void enable() {
-        disabled = false;
-        rotation.enable();
+    public void enableAvgDistance() {
+        rightA.configSensorTerm(SensorTerm.Sum0, FeedbackDevice.RemoteSensor0, TIMEOUT);
+        rightA.configSensorTerm(SensorTerm.Sum1, FeedbackDevice.QuadEncoder, TIMEOUT);
+
+        rightA.set(ControlMode.Disabled, 0); //Stop moving the motors
+
+        rightA.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY, TIMEOUT); //Sum of the distances from both encoders
+        rightA.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY, TIMEOUT); //We want the mean distance traveled
+    }
+
+    /**
+     * Disable distance(and thus velocity) averaging
+     * Don't use averaging when the one side has to go faster/farther or slower/closer
+     */
+    public void disableAvgDistance() {
+        rightA.set(ControlMode.Disabled, 0); //Stop moving the motors
+
+        rightA.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, PID_PRIMARY, TIMEOUT); //Use only its own encoder
+        rightA.configSelectedFeedbackCoefficient(1, PID_PRIMARY, TIMEOUT); //We don't want to divide the distance by 2
     }
 
     /**
      * Disable all motor controllers and rotation pid
      */
     public void disable() {
-        disabled = true;
-        leftA.selectProfileSlot(0, 0);
-        rightA.selectProfileSlot(0, 0);
         leftA.set(ControlMode.Disabled, 0);
         rightA.set(ControlMode.Disabled, 0);
-        rotation.disable();
-    }
-
-    @Override
-    public void periodic() {
-        if (disabled) {
-            return;
-        }
-        //TODO figure out how to integrate gyroscope into drive train
-        /*
-        double rotationPID = rotation.get();
-        double leftPID = left.get() - rotationPID;
-        double rightPID = right.get() + rotationPID;
-        double max = Math.max(Math.max(Math.abs(leftPID), Math.abs(rightPID)), 1);
-        //Normalize values to be in the range -1 to 1
-        leftPID /= max;
-        rightPID /= max;
-        leftMotorGroup.pidWrite(leftPID);
-        rightMotorGroup.pidWrite(rightPID);*/
     }
 
     @Override
@@ -222,20 +249,20 @@ public class DriveTrainSubsystem extends Subsystem {
     }
 
     /**
-     * Converts sensor units to inches
-     * @param units Sensor units
+     * Converts encoder sensor units to inches
+     * @param units Encoder Sensor units
      * @return distance in inches
      */
-    public double convertU2I(double units) {
-        return units / 4096d * 6d * Math.PI;
+    public double convertEU2I(double units) {
+        return units / ENCODER_UNITS_PER_ROTATION * 6d * Math.PI;
     }
 
     /**
-     * Converts inches to sensor units
+     * Converts inches to encoder sensor units
      * @param distance in inches
-     * @return sensor units
+     * @return encoder sensor units
      */
-    public int convertI2U(double distance) {
-        return (int) (distance / 6d / Math.PI * 4096d);
+    public double convertI2EU(double distance) {
+        return (int) (distance / 6d / Math.PI * ENCODER_UNITS_PER_ROTATION);
     }
 }

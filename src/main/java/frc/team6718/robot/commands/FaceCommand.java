@@ -17,6 +17,7 @@ public class FaceCommand extends Command {
 
     @Override
     protected void initialize() {
+        Robot.driveTrain.disableAvgDistance(); //Probably not needed
         Robot.driveTrain.setTargetHeading(heading);
     }
 

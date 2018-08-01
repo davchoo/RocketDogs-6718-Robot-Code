@@ -22,7 +22,7 @@ public class TurnCommand extends Command {
 
     @Override
     protected void initialize() {
-        Robot.driveTrain.enable();
+        Robot.driveTrain.disableAvgDistance(); //Probably not needed
         Robot.driveTrain.rotateTargetHeading(heading);
     }
 

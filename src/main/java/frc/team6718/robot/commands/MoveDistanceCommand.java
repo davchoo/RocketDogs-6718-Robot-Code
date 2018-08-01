@@ -22,8 +22,8 @@ public class MoveDistanceCommand extends Command{
 
     @Override
     protected void initialize() {
-        Robot.driveTrain.enable();
         Robot.driveTrain.resetDistance();
+        Robot.driveTrain.enableAvgDistance();
         Robot.driveTrain.setTargetDistance(distance);
     }
 

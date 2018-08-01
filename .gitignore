@@ -1,5 +1,13 @@
 *.iml
 *.ipr
 *.iws
-/.gradle/
-/build/
+.gradle/
+build/
+.wpilib/
+.classpath
+.project
+bin/
+.settings/
+.vscode/
+.shelf/
+ctre/

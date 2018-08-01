@@ -2,22 +2,37 @@ plugins {
     id "java"
     id "eclipse"
     id "idea"
-    id "jaci.openrio.gradle.GradleRIO" version "2018.02.17"
+    id "edu.wpi.first.GradleRIO" version "2018.06.21"
 }
 
 def TEAM = 6718
 def ROBOT_CLASS = "frc.team6718.robot.Robot"
 
+def ctreVersion = "5.7.1.0"
+
+repositories {
+    mavenLocal()
+}
+
+project.dependencies.ext.ctreJni = {
+    "davchoo.mirror.third.ctre:CTRE-phoenix-java:${ctreVersion}:native@zip"
+}
+
+project.dependencies.ext.ctre = {
+    project.dependencies.add("nativeZip", project.dependencies.ext.ctreJni())
+    ["davchoo.mirror.third.ctre:CTRE-phoenix-java:${ctreVersion}"]
+}
+
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project EmbeddedTools.
 deploy {
     targets {
-        target("roborio", jaci.openrio.gradle.frc.RoboRIO) {
+        target("roborio", edu.wpi.first.gradlerio.frc.RoboRIO) {
             team = TEAM
         }
     }
     artifacts {
-        artifact('frcJava', jaci.openrio.gradle.frc.FRCJavaArtifact) {
+        artifact('frcJava', edu.wpi.first.gradlerio.frc.FRCJavaArtifact) {
             targets << "roborio"
         }
 
@@ -39,9 +54,9 @@ dependencies {
 // knows where to look for our Robot Class.
 jar {
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    manifest jaci.openrio.gradle.GradleRIOPlugin.javaManifest(ROBOT_CLASS)
+    manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_CLASS)
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.4'
+    gradleVersion = '4.9'
 }

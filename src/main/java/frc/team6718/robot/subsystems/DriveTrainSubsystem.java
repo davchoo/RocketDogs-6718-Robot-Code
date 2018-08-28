@@ -30,6 +30,9 @@ public class DriveTrainSubsystem extends Subsystem {
         left = new SpeedControllerGroup(leftA, leftB);
         right = new SpeedControllerGroup(rightA, rightB);
 
+        left.setInverted(true);
+        right.setInverted(true);
+
         //TODO check if one of the encoders need to be reversed
         leftEncoder = new Encoder(RobotMap.DRIVE_TRAIN_ENCODER_LEFT_A, RobotMap.DRIVE_TRAIN_ENCODER_LEFT_B, false);
         rightEncoder = new Encoder(RobotMap.DRIVE_TRAIN_ENCODER_RIGHT_A, RobotMap.DRIVE_TRAIN_ENCODER_RIGHT_B, false);
@@ -37,6 +40,8 @@ public class DriveTrainSubsystem extends Subsystem {
         //We have 6in diameter wheels
         leftEncoder.setDistancePerPulse(Math.PI * 6d / 1024d);
         rightEncoder.setDistancePerPulse(Math.PI * 6d / 1024d);
+
+        rightEncoder.setReverseDirection(true);
 
         drive = new DifferentialDrive(left, right);
 

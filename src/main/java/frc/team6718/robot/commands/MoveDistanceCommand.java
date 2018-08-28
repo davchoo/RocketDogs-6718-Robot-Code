@@ -8,7 +8,7 @@ public class MoveDistanceCommand extends Command{
     public double distance, speed;
     private double lastAngle;
     //TODO calibrate P value
-    private double P = 0.03; //Proportional part of PID
+    private double P = 0.00; //Proportional part of PID
 
     public MoveDistanceCommand(double distance, double speed) {
         super("Move Distance");
